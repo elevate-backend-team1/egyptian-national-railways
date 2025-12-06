@@ -9,7 +9,7 @@ export interface TokenPayload {
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) { }
 
   /**
    * Generate an access token
@@ -35,7 +35,7 @@ export class AuthService {
   async verifyToken(token: string): Promise<any> {
     try {
       return await this.jwtService.verifyAsync(token);
-    } catch (error) {
+    } catch {
       throw new Error('Invalid or expired token');
     }
   }
