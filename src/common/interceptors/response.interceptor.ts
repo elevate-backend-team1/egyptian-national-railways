@@ -7,10 +7,12 @@ import { ApiResponse, ResponseStatus } from '../interfaces/response.interface';
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
   intercept(_context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
     return next.handle().pipe(
-      map((data) => ({
-        data: data ?? null,
-        status: ResponseStatus.SUCCESS
-      }))
+      map(
+        (data: T): ApiResponse<T> => ({
+          data: (data ?? null) as T,
+          status: ResponseStatus.SUCCESS
+        })
+      )
     );
   }
 }
