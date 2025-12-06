@@ -32,4 +32,7 @@ async function bootstrap() {
   await app.listen(3000);
   console.log('🚀 Egyptian National Railways API is running on: http://localhost:3000');
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Failed to start application:', err);
+  process.exit(1);
+});
