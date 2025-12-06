@@ -9,7 +9,7 @@ export interface TokenPayload {
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) { }
+  constructor(private jwtService: JwtService) {}
 
   /**
    * Generate an access token

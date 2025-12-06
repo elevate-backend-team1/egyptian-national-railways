@@ -9,17 +9,17 @@ import { plainToInstance } from 'class-transformer';
  * Transforms response data using class-transformer
  */
 export class SerializationInterceptor implements NestInterceptor {
-    constructor(private dto: ClassConstructor<unknown>) { }
+  constructor(private dto: ClassConstructor<unknown>) {}
 
-    intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-        return next.handle().pipe(
-            map((data: unknown) => {
-                return plainToInstance(this.dto, data, {
-                    excludeExtraneousValues: true
-                });
-            })
-        );
-    }
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    return next.handle().pipe(
+      map((data: unknown) => {
+        return plainToInstance(this.dto, data, {
+          excludeExtraneousValues: true
+        });
+      })
+    );
+  }
 }
 
 /**
@@ -27,5 +27,5 @@ export class SerializationInterceptor implements NestInterceptor {
  * Usage: @Serialize(UserDto)
  */
 export function Serialize(dto: ClassConstructor<unknown>) {
-    return UseInterceptors(new SerializationInterceptor(dto));
+  return UseInterceptors(new SerializationInterceptor(dto));
 }
