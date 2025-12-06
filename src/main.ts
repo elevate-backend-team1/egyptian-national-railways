@@ -10,7 +10,7 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: '*', // Configure this based on your frontend URL in production
-    credentials: true,
+    credentials: true
   });
 
   // Global validation pipe
@@ -18,8 +18,8 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true, // Strip properties that don't have decorators
       forbidNonWhitelisted: true, // Throw error if non-whitelisted properties are present
-      transform: true, // Automatically transform payloads to DTO instances
-    }),
+      transform: true // Automatically transform payloads to DTO instances
+    })
   );
 
   // Global response interceptor
