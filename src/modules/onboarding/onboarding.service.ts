@@ -12,8 +12,7 @@ export class OnboardingService {
   ) {}
 
   async create(createOnboardingDto: CreateOnboardingDto): Promise<Onboarding> {
-    const newOnboarding = new this.onboardingModel(createOnboardingDto);
-    return newOnboarding.save();
+    return this.onboardingModel.create(createOnboardingDto);
   }
 
   async findAll(language: string): Promise<Onboarding[]> {
