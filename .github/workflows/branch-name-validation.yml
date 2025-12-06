@@ -1,0 +1,33 @@
+name: Branch Name Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate branch name
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: |
+          echo "Branch name: $BRANCH_NAME"
+
+          # Allowed prefixes:
+          # feature/ , bugfix/ , hotfix/ , release/
+          # Pattern: prefix/TICKET-CODE-NUMBER/task-name
+          
+          REGEX="^(feature|bugfix|hotfix|release)\/[A-Z]+-[0-9]+-[A-Za-z0-9._-]+$"
+
+          if [[ ! "$BRANCH_NAME" =~ $REGEX ]]; then
+            echo "❌ Invalid branch name!"
+            echo "Branch must match pattern:"
+            echo "{prefix}/{TICKET-ID}-{NUMBER}/{task-name}"
+            echo ""
+            echo "Example: feature/ECOM-27-Initialize-Project"
+            exit 1
+          fi
+
+          echo "✅ Branch name is valid!"
