@@ -11,6 +11,7 @@ import {
   Query,
   UseGuards,
   Headers,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { SignUpDto } from '../dto/signup.dto';
@@ -20,6 +21,7 @@ import { CompleteProfileDto } from '../dto/complete-profile.dto';
 import { TempTokenGuard } from '../guards/temp-token.guard';
 import { UserId } from '../decorators/user-id.decorator';
 import { ApiResponse } from '../../common/dto/response.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -34,20 +36,22 @@ export class AuthController {
   async signUp(@Body() signUpDto: SignUpDto): Promise<ApiResponse<any>> {
     const result = await this.authService.signUp(signUpDto);
     return ApiResponse.success(result.message, { email: result.email });
-}
+  }
 
   /**
    * POST /auth/verify-otp
    */
   @Post('verify-otp')
   @HttpCode(HttpStatus.OK)
-  async verifyOTP(@Body() verifyOTPDto: VerifyOTPDto): Promise<ApiResponse<any>> {
+  async verifyOTP(
+    @Body() verifyOTPDto: VerifyOTPDto,
+  ): Promise<ApiResponse<any>> {
     const result = await this.authService.verifyOTP(verifyOTPDto);
     return ApiResponse.success(result.message, {
-        tempToken: result.tempToken,
-        email: result.email,
+      tempToken: result.tempToken,
+      email: result.email,
     });
-}
+  }
 
   /**
    * POST /auth/resend-otp
@@ -88,4 +92,19 @@ export class AuthController {
   async getOTPStatus(@Query('email') email: string) {
     return await this.authService.getOTPStatus(email);
   }
+
+  /**
+   * POST /auth/reset-password
+   */
+  @Post('reset-password')
+  // @UseGuards(AuthGuard('jwt')) >>... wait for auth guard implementation
+  async resetPassword(@Req() req, @Body() body: ChangePasswordDto) {
+    return await this.authService.changePassword(req.user._id.toString(), body);
+  }
+
+  /**
+   * POST /auth/forget-password
+   */
+  @Post('forget-password')
+  async forgetPassword(@Body() body: any) {}
 }
