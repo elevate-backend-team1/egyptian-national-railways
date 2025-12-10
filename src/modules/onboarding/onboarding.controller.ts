@@ -8,9 +8,7 @@ export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
   @Post()
-  create(
-    @Body() createOnboardingDto: CreateOnboardingDto,
-  ): Promise<Onboarding> {
+  create(@Body() createOnboardingDto: CreateOnboardingDto): Promise<Onboarding> {
     return this.onboardingService.create(createOnboardingDto);
   }
 

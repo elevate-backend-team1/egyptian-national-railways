@@ -10,26 +10,25 @@ describe('OnboardingService', () => {
   const mockOnboardingItem: Onboarding = {
     _id: '507f1f77bcf86cd799439011',
     title: 'Welcome to Egyptian National Railways',
-    description:
-      'Your gateway to comfortable and affordable travel across Egypt.',
+    description: 'Your gateway to comfortable and affordable travel across Egypt.',
     imageUrl: '/images/onboarding/welcome.png',
-    language: 'en',
+    language: 'en'
   } as Onboarding;
 
   const mockModel = {
     constructor: jest.fn().mockImplementation((dto: CreateOnboardingDto) => ({
       ...dto,
-      save: jest.fn().mockResolvedValue(mockOnboardingItem),
+      save: jest.fn().mockResolvedValue(mockOnboardingItem)
     })),
 
     create: jest.fn().mockResolvedValue(mockOnboardingItem),
 
     find: jest.fn().mockReturnValue({
-      exec: jest.fn().mockResolvedValue([mockOnboardingItem]),
+      exec: jest.fn().mockResolvedValue([mockOnboardingItem])
     }),
 
     countDocuments: jest.fn().mockResolvedValue(0),
-    insertMany: jest.fn().mockResolvedValue([mockOnboardingItem]),
+    insertMany: jest.fn().mockResolvedValue([mockOnboardingItem])
   };
 
   beforeEach(async () => {
@@ -38,9 +37,9 @@ describe('OnboardingService', () => {
         OnboardingService,
         {
           provide: getModelToken(Onboarding.name),
-          useValue: mockModel,
-        },
-      ],
+          useValue: mockModel
+        }
+      ]
     }).compile();
 
     service = module.get<OnboardingService>(OnboardingService);
@@ -56,10 +55,9 @@ describe('OnboardingService', () => {
     it('should create a new onboarding item', async () => {
       const mockCreateDto = {
         title: 'Welcome to Egyptian National Railways',
-        description:
-          'Your gateway to comfortable and affordable travel across Egypt.',
+        description: 'Your gateway to comfortable and affordable travel across Egypt.',
         imageUrl: '/images/onboarding/welcome.png',
-        language: 'en',
+        language: 'en'
       };
 
       const mockOnboardingItem = { ...mockCreateDto };

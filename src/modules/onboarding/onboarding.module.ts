@@ -5,12 +5,8 @@ import { OnboardingService } from './onboarding.service';
 import { Onboarding, OnboardingSchema } from './schemas/onboarding.schema';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Onboarding.name, schema: OnboardingSchema },
-    ]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: Onboarding.name, schema: OnboardingSchema }])],
   controllers: [OnboardingController],
-  providers: [OnboardingService],
+  providers: [OnboardingService]
 })
 export class OnboardingModule {}

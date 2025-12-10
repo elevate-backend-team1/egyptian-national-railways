@@ -8,7 +8,7 @@ import { CreateOnboardingDto } from './dto/create-onboarding.dto';
 export class OnboardingService {
   constructor(
     @InjectModel(Onboarding.name)
-    private onboardingModel: Model<OnboardingDocument>,
+    private onboardingModel: Model<OnboardingDocument>
   ) {}
 
   async create(createOnboardingDto: CreateOnboardingDto): Promise<Onboarding> {
