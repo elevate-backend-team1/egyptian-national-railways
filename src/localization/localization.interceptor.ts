@@ -1,15 +1,7 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import { Response, Request } from 'express';
 import { LocalizationService, SupportedLanguage } from './localization.service';
-
-export interface LocalizedRequest extends Request {
-  lang?: SupportedLanguage;
-}
 
 @Injectable()
 export class LocalizationInterceptor implements NestInterceptor {
@@ -17,15 +9,13 @@ export class LocalizationInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const httpCtx = context.switchToHttp();
-    const request = httpCtx.getRequest<LocalizedRequest>();
+    const request = httpCtx.getRequest<Request & { lang?: SupportedLanguage }>();
+    const response = httpCtx.getResponse<Response>();
 
-    const acceptLang = request.headers['accept-language'] as string | undefined;
-
+    const acceptLang = request.headers['accept-language'];
     const lang = this.localizationService.normalizeLanguage(acceptLang);
 
     request.lang = lang;
-
-    const response = httpCtx.getResponse();
     response.setHeader('Content-Language', lang);
 
     return next.handle();

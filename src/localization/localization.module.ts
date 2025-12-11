@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { LocalizationService } from './localization.service';
 import { LocalizationInterceptor } from './localization.interceptor';
-
+import { LocalizationService } from './localization.service';
 
 @Module({
   providers: [
     LocalizationService,
     {
       provide: APP_INTERCEPTOR,
-      useClass: LocalizationInterceptor, // نخليه Global Interceptor
-    },
+      useClass: LocalizationInterceptor
+    }
   ],
-  exports: [LocalizationService],
+  exports: [LocalizationService]
 })
 export class LocalizationModule {}
