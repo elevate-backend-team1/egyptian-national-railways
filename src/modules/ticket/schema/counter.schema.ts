@@ -5,16 +5,16 @@ export type CounterDocument = HydratedDocument<Counter>;
 
 @Schema({ timestamps: true })
 export class Counter {
-  @Prop({ 
-    required: true, 
-    unique: true 
+  @Prop({
+    required: true,
+    unique: true
   })
   name: string;
 
-  @Prop({ 
-    default: 0 
+  @Prop({
+    default: 0
   })
-  value: number; 
+  value: number;
 }
 
 const CounterSchema = SchemaFactory.createForClass(Counter);

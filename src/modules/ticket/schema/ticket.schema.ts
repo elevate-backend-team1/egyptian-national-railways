@@ -5,23 +5,23 @@ export type TicketDocument = HydratedDocument<Ticket>;
 
 @Schema({ timestamps: true })
 export class Ticket {
-  @Prop({ 
-    required: true, 
-    unique: true 
+  @Prop({
+    required: true,
+    unique: true
   })
   ticketNumber: string;
 
-  @Prop({ 
-    type: Types.ObjectId, 
+  @Prop({
+    type: Types.ObjectId,
     ref: 'User',
-    required: true 
+    required: true
   })
   userId: Types.ObjectId;
 
-  @Prop({ 
-    type: Types.ObjectId, 
+  @Prop({
+    type: Types.ObjectId,
     ref: 'Trip',
-    required: true 
+    required: true
   })
   tripId: Types.ObjectId;
 
@@ -31,47 +31,47 @@ export class Ticket {
   })
   seatNumber: number;
 
-  @Prop({ 
+  @Prop({
     type: String,
     enum: ['first', 'second', 'third'],
     required: true
   })
   class: string;
 
-  @Prop({ 
-    type: Number, 
-    required: true 
+  @Prop({
+    type: Number,
+    required: true
   })
   carNumber: number;
 
-  @Prop({ 
+  @Prop({
     type: String,
     required: true
   })
   fromStation: string;
 
-  @Prop({ 
+  @Prop({
     type: String,
     required: true
   })
   toStation: string;
 
-  @Prop({ 
-    type: Date, 
-    required: true 
+  @Prop({
+    type: Date,
+    required: true
   })
   travelDate: Date;
 
-  @Prop({ 
+  @Prop({
     type: Number,
-    required: true 
+    required: true
   })
   price: number;
 
   @Prop({
     type: String,
     enum: ['booked', 'paid', 'cancelled', 'refunded', 'expired'],
-    default: 'booked',
+    default: 'booked'
   })
   status: string;
 
@@ -80,20 +80,20 @@ export class Ticket {
   })
   qrCode: string;
 
-  @Prop({ 
-    type: Date, 
-    default: () => new Date() 
+  @Prop({
+    type: Date,
+    default: () => new Date()
   })
   bookingTime: Date;
 
-  @Prop({ 
-    type: Date 
+  @Prop({
+    type: Date
   })
   paidTime: Date;
 
-  @Prop({ 
-    type: Date, 
-    required: false 
+  @Prop({
+    type: Date,
+    required: false
   })
   cancelDate?: Date;
 }
@@ -106,7 +106,6 @@ export const TicketModel = MongooseModule.forFeature([{ name: Ticket.name, schem
  */
 
 TicketSchema.pre('save', function (next) {
-
   if (this.status === 'cancelled' && !this.cancelDate) {
     this.cancelDate = new Date();
   }
@@ -114,36 +113,33 @@ TicketSchema.pre('save', function (next) {
   next();
 });
 
-
 /**
  * Auto Generated Ticket Number
  */
 
 TicketSchema.pre('save', async function (next) {
-
-  if (this.ticketNumber) return next();   // =========> If ticket number is already generated
+  if (this.ticketNumber) return next(); // =========> If ticket number is already generated
 
   const counterModel = this.db.model('Counter'); // =================> Counter Collection
   const year = new Date().getFullYear();
   const counterName = `ticketNumber-${year}`;
 
-  
   const counter = await counterModel.findOneAndUpdate(
-    { 
+    {
       name: counterName // =================> search for Counter Name in Counter Collection
     },
-    { 
-      $inc: { value: 1 } 
+    {
+      $inc: { value: 1 }
     },
-    { 
-      new: true, 
-      upsert: true 
+    {
+      new: true,
+      upsert: true
     }
   );
 
   const serial = counter.value.toString().padStart(6, '0');
 
   this.ticketNumber = `EG-TR-${year}-${serial}`;
-  
+
   next();
 });
