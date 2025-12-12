@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { TicketModule } from './modules/ticket/ticket.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { AuthModule } from './modules/auth/auth.module';
       envFilePath: '.env'
     }),
     MongooseModule.forRoot('mongodb://localhost:27017/egyptian-railways'),
-    AuthModule
+    AuthModule,
+    TicketModule
   ],
   controllers: [AppController],
   providers: [AppService]
