@@ -1,5 +1,6 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { Counter } from './counter.schema';
 
 export type TicketDocument = HydratedDocument<Ticket>;
 
@@ -124,7 +125,7 @@ TicketSchema.pre('save', async function (next) {
   const year = new Date().getFullYear();
   const counterName = `ticketNumber-${year}`;
 
-  const counter = await counterModel.findOneAndUpdate(
+  const counter: Counter = await counterModel.findOneAndUpdate(
     {
       name: counterName // =================> search for Counter Name in Counter Collection
     },
@@ -137,7 +138,7 @@ TicketSchema.pre('save', async function (next) {
     }
   );
 
-  const serial = counter.value.toString().padStart(6, '0');
+  const serial: string = counter.value.toString().padStart(6, '0');
 
   this.ticketNumber = `EG-TR-${year}-${serial}`;
 
