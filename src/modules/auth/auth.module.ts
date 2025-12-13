@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { jwtConfig } from '../../config/jwt.config';
+import { MailModule } from 'src/common/mail/mail.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { jwtConfig } from '../../config/jwt.config';
       signOptions: {
         expiresIn: jwtConfig.accessTokenExpiration
       }
-    })
+    }),
+    MailModule
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
