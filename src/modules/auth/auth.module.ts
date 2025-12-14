@@ -19,10 +19,6 @@ import { Otp, OtpSchema } from './schemas/otp.schema';
         expiresIn: jwtConfig.accessTokenExpiration
       }
     }),
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema }, // Register UserModel here
-      { name: Otp.name, schema: OtpSchema }
-    ]),
     MailModule
   ],
   controllers: [AuthController],
