@@ -149,10 +149,7 @@ export class AuthService {
     return this.generateOtp(email);
   }
 
-  async login(
-    body: LoginDto
-  ): Promise<ApiResponse> {
-
+  async login(body: LoginDto): Promise<ApiResponse> {
     const { password, email } = body;
 
     const user = await this.userModel.findOne({ email });
@@ -170,17 +167,17 @@ export class AuthService {
     }
 
     const accessToken = this.generateAccessToken({
-          sub: user._id.toString(),
-          email: user.email,
-          role: user.role
-        })
+      sub: user._id.toString(),
+      email: user.email,
+      role: user.role
+    });
 
     return {
       data: {
         accessToken
       },
-      status: ResponseStatus.SUCCESS,
-    }
+      status: ResponseStatus.SUCCESS
+    };
   }
   /**
    * change logged user password service

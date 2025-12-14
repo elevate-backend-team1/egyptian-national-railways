@@ -7,8 +7,8 @@ export class LoginDto {
 
   @IsString()
   @MinLength(4, { message: 'Password must be at least 4 characters' })
-//   @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$/, {
-//     message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-//   })
+  //   @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+$/, {
+  //     message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+  //   })
   password: string;
 }

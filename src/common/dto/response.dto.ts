@@ -12,7 +12,7 @@ export class ApiResponses<T> {
     return new ApiResponses<T>({
       success: true,
       message,
-      data,
+      data
     });
   }
 
@@ -20,7 +20,7 @@ export class ApiResponses<T> {
     return new ApiResponses<T>({
       success: false,
       message,
-      error,
+      error
     });
   }
 }
