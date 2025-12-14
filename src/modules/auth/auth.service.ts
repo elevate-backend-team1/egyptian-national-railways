@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { createUserDto } from './dto/create-user.dto';
@@ -10,6 +16,11 @@ import { MailService } from 'src/common/mail/mail.service';
 import { updateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiResponse, ResponseStatus } from 'src/common/interfaces/response.interface';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import * as bcrypt from 'bcrypt';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ApiResponses } from 'src/common/dto/response.dto';
 
 export interface TokenPayload {
   sub: string;
@@ -70,7 +81,7 @@ export class AuthService {
   async create(createUser: createUserDto) {
     return this.userModel.create({
       email: createUser.email,
-      password_hash: createUser.password
+      password_hash: await bcrypt.hash(createUser.password, 10)
     });
   }
 
@@ -127,6 +138,9 @@ export class AuthService {
     otpRecord.is_valid = false;
     await otpRecord.save();
 
+    // update user verified status
+    await this.userModel.findOneAndUpdate({ email }, { verified: true });
+
     return { message: 'OTP verified successfully' };
   }
 
@@ -167,5 +181,72 @@ export class AuthService {
       },
       status: ResponseStatus.SUCCESS,
     }
+  }
+  /**
+   * change logged user password service
+   */
+  async changeUserPassword(userId: string, body: ChangePasswordDto) {
+    // Find user
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    // Check if current password matches
+    const isMatch = await bcrypt.compare(body.currentPassword, user.password_hash);
+    if (!isMatch) {
+      throw new UnauthorizedException('Old password is incorrect');
+    }
+    // update user password
+    const hashedPassword = await bcrypt.hash(body.newPassword, 10);
+    user.password_hash = hashedPassword;
+
+    await user.save();
+
+    return ApiResponses.success('Password updated successfully', null);
+  }
+
+  /**
+   * forgot password service
+   */
+  async forgotPassword(email: ForgotPasswordDto) {
+    // check user email
+    const user = await this.userModel.findOne({ email: email.email });
+    if (!user) {
+      throw new NotFoundException(`User with email ${email.email} not found`);
+    }
+    // generate and send OTP
+    try {
+      await this.generateOtp(user.email);
+      // Update user status to pendingVerification
+      user.verified = false;
+      await user.save();
+    } catch (error) {
+      // Update user status to VERIFIED in case of failure
+      user.verified = true;
+      await user.save();
+
+      throw new InternalServerErrorException('Failed to send password reset code');
+    }
+
+    return ApiResponses.success('Password reset code sent to your email', null);
+  }
+
+  /**
+   * reset password service
+   */
+  async resetPassword(dto: ResetPasswordDto) {
+    // update user password
+    const user = await this.userModel.findOneAndUpdate(
+      { email: dto.email },
+      {
+        password: await bcrypt.hash(dto.newPassword, 10)
+      }
+    );
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return ApiResponses.success('Password has been reset successfully', null);
   }
 }
