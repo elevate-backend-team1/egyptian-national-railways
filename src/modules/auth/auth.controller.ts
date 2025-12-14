@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
+import { LoginDto } from './dto/login.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +32,13 @@ export class AuthController {
   @Get('resend-otp/:email')
   async resendOtp(@Param('email') email: string) {
     return await this.authService.resendOtp(email);
+  }
+
+  @Post('login')
+  @Public()
+  async login(
+    @Body() body: LoginDto
+  ) {
+    return await this.authService.login(body);
   }
 }

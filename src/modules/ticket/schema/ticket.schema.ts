@@ -22,7 +22,7 @@ export class Ticket {
   @Prop({
     type: Types.ObjectId,
     ref: 'Trip',
-    required: true
+    // required: true  
   })
   tripId: Types.ObjectId;
 

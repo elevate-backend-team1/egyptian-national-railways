@@ -8,10 +8,13 @@ import { Model } from 'mongoose';
 import { Otp, OtpDocument } from './schemas/otp.schema';
 import { MailService } from 'src/common/mail/mail.service';
 import { updateUserDto } from './dto/update-user.dto';
+import { LoginDto } from './dto/login.dto';
+import { ApiResponse, ResponseStatus } from 'src/common/interfaces/response.interface';
 
 export interface TokenPayload {
   sub: string;
   email: string;
+  role: string;
 }
 
 @Injectable()
@@ -130,5 +133,39 @@ export class AuthService {
   async resendOtp(email: string) {
     await this.otpModel.updateMany({ email, is_valid: true }, { is_valid: false });
     return this.generateOtp(email);
+  }
+
+  async login(
+    body: LoginDto
+  ): Promise<ApiResponse> {
+
+    const { password, email } = body;
+
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.password_hash !== password) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    if (!user.verified) {
+      throw new BadRequestException('User is not verified');
+    }
+
+    const accessToken = this.generateAccessToken({
+          sub: user._id.toString(),
+          email: user.email,
+          role: user.role
+        })
+
+    return {
+      data: {
+        accessToken
+      },
+      status: ResponseStatus.SUCCESS,
+    }
   }
 }
