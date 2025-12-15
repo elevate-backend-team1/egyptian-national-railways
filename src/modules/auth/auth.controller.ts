@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/comm
 import { AuthService } from './auth.service';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
+import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -36,6 +37,11 @@ export class AuthController {
     return await this.authService.resendOtp(email);
   }
 
+  @Post('login')
+  @Public()
+  async login(@Body() body: LoginDto) {
+    return await this.authService.login(body);
+  }
   /**
    * POST/forgot-password
    * @param ForgotPasswordDto
