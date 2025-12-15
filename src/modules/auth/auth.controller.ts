@@ -38,7 +38,7 @@ export class AuthController {
 
   /**
    * POST/forgot-password
-   * @param ForgotPasswordDto
+   * @body ForgotPasswordDto
    * @returns
    */
   @Post('forgot-password')

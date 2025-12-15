@@ -6,6 +6,8 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { jwtConfig } from '../../config/jwt.config';
 import { MailModule } from 'src/common/mail/mail.module';
+import { userModel } from './schemas/user.shcema';
+import { otpModel } from './schemas/otp.schema';
 
 @Module({
   imports: [
@@ -16,7 +18,9 @@ import { MailModule } from 'src/common/mail/mail.module';
         expiresIn: jwtConfig.accessTokenExpiration
       }
     }),
-    MailModule
+    MailModule,
+    userModel,
+    otpModel
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
