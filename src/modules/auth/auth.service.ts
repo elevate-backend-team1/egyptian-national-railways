@@ -14,15 +14,18 @@ import { Model } from 'mongoose';
 import { Otp, OtpDocument } from './schemas/otp.schema';
 import { MailService } from 'src/common/mail/mail.service';
 import { updateUserDto } from './dto/update-user.dto';
+import { LoginDto } from './dto/login.dto';
+import { ApiResponse, ResponseStatus } from 'src/common/interfaces/response.interface';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
-import { ApiResponse } from 'src/common/dto/response.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ApiResponses } from 'src/common/dto/response.dto';
 
 export interface TokenPayload {
   sub: string;
   email: string;
+  role: string;
 }
 
 @Injectable()
@@ -146,6 +149,36 @@ export class AuthService {
     return this.generateOtp(email);
   }
 
+  async login(body: LoginDto): Promise<ApiResponse> {
+    const { password, email } = body;
+
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.password_hash !== password) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    if (!user.verified) {
+      throw new BadRequestException('User is not verified');
+    }
+
+    const accessToken = this.generateAccessToken({
+      sub: user._id.toString(),
+      email: user.email,
+      role: user.role
+    });
+
+    return {
+      data: {
+        accessToken
+      },
+      status: ResponseStatus.SUCCESS
+    };
+  }
   /**
    * change logged user password service
    */
@@ -166,7 +199,7 @@ export class AuthService {
 
     await user.save();
 
-    return ApiResponse.success('Password updated successfully', null);
+    return ApiResponses.success('Password updated successfully', null);
   }
 
   /**
@@ -192,7 +225,7 @@ export class AuthService {
       throw new InternalServerErrorException('Failed to send password reset code');
     }
 
-    return ApiResponse.success('Password reset code sent to your email', null);
+    return ApiResponses.success('Password reset code sent to your email', null);
   }
 
   /**
@@ -211,6 +244,6 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    return ApiResponse.success('Password has been reset successfully', null);
+    return ApiResponses.success('Password has been reset successfully', null);
   }
 }
