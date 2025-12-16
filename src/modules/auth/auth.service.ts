@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async create(createUser: createUserDto) {
-    const hashedPassword = await bcrypt.hash(createUser.password, 10);
+    const hashedPassword: string = await bcrypt.hash(createUser.password, 10);
     const user = await this.userModel.create({
       email: createUser.email,
       password_hash: hashedPassword
@@ -194,12 +194,12 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
     // Check if current password matches
-    const isMatch = await bcrypt.compare(body.currentPassword, user.password_hash);
+    const isMatch: boolean = await bcrypt.compare(body.currentPassword, user.password_hash);
     if (!isMatch) {
       throw new UnauthorizedException('Old password is incorrect');
     }
     // update user password
-    const hashedPassword = await bcrypt.hash(body.newPassword, 10);
+    const hashedPassword: string = await bcrypt.hash(body.newPassword, 10);
     user.password_hash = hashedPassword;
 
     await user.save();
@@ -237,11 +237,12 @@ export class AuthService {
    * reset password service
    */
   async resetPassword(dto: ResetPasswordDto) {
+    const hashedPassword: string = await bcrypt.hash(dto.newPassword, 10);
     // update user password
     const user = await this.userModel.findOneAndUpdate(
       { email: dto.email },
       {
-        password: await bcrypt.hash(dto.newPassword, 10)
+        password: hashedPassword
       }
     );
 
