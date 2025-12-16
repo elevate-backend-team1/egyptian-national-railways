@@ -21,6 +21,8 @@ import * as bcrypt from 'bcrypt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiResponses } from 'src/common/dto/response.dto';
+import { log } from 'console';
+import { handleServiceError } from 'src/common/utils/errorHandler';
 
 export interface TokenPayload {
   sub: string;
@@ -222,12 +224,12 @@ export class AuthService {
       // Update user status to pendingVerification
       user.verified = false;
       await user.save();
-    } catch (error) {
+    } catch (error: unknown) {
       // Update user status to VERIFIED in case of failure
       user.verified = true;
       await user.save();
 
-      throw new InternalServerErrorException('Failed to send password reset code', error.message);
+      handleServiceError(error);
     }
 
     return ApiResponses.success('Password reset code sent to your email', null);
