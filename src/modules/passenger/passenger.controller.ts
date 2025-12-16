@@ -1,15 +1,5 @@
 // src/passengers/passengers.controller.ts
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { PassengersService } from './passenger.service';
 import { CreatePassengerDto } from './dto/create-passenger.dto';
 import { UpdatePassengerDto } from './dto/update-passenger.dto';
@@ -35,11 +25,7 @@ export class PassengersController {
   }
 
   @Patch(':id')
-  update(
-    @Req() req,
-    @Param('id') id: string,
-    @Body() dto: UpdatePassengerDto,
-  ) {
+  update(@Req() req, @Param('id') id: string, @Body() dto: UpdatePassengerDto) {
     return this.passengersService.update(req.user._id, id, dto);
   }
 

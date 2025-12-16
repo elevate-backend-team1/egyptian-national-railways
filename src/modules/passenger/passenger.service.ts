@@ -10,13 +10,13 @@ import { UpdatePassengerDto } from './dto/update-passenger.dto';
 export class PassengersService {
   constructor(
     @InjectModel(Passenger.name)
-    private passengerModel: Model<PassengerDocument>,
+    private passengerModel: Model<PassengerDocument>
   ) {}
 
   create(userId: string, dto: CreatePassengerDto) {
     return this.passengerModel.create({
       ...dto,
-      userId: new Types.ObjectId(userId),
+      userId: new Types.ObjectId(userId)
     });
   }
 
@@ -27,7 +27,7 @@ export class PassengersService {
   async findOne(userId: string, passengerId: string) {
     const passenger = await this.passengerModel.findOne({
       _id: passengerId,
-      userId,
+      userId
     });
 
     if (!passenger) {
@@ -37,16 +37,8 @@ export class PassengersService {
     return passenger;
   }
 
-  async update(
-    userId: string,
-    passengerId: string,
-    dto: UpdatePassengerDto,
-  ) {
-    const passenger = await this.passengerModel.findOneAndUpdate(
-      { _id: passengerId, userId },
-      dto,
-      { new: true },
-    );
+  async update(userId: string, passengerId: string, dto: UpdatePassengerDto) {
+    const passenger = await this.passengerModel.findOneAndUpdate({ _id: passengerId, userId }, dto, { new: true });
 
     if (!passenger) {
       throw new NotFoundException('Passenger not found');
@@ -58,7 +50,7 @@ export class PassengersService {
   async remove(userId: string, passengerId: string) {
     const passenger = await this.passengerModel.findOneAndDelete({
       _id: passengerId,
-      userId,
+      userId
     });
 
     if (!passenger) {

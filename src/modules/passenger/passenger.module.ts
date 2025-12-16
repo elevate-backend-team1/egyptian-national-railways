@@ -6,12 +6,8 @@ import { PassengersController } from './passenger.controller';
 import { Passenger, PassengerSchema } from './schemas/passenger.schema';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: Passenger.name, schema: PassengerSchema },
-    ]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: Passenger.name, schema: PassengerSchema }])],
   controllers: [PassengersController],
-  providers: [PassengersService],
+  providers: [PassengersService]
 })
 export class PassengersModule {}
