@@ -79,9 +79,10 @@ export class AuthService {
   }
 
   async create(createUser: createUserDto) {
+    const hashedPassword = await bcrypt.hash(createUser.password, 10);
     const user = await this.userModel.create({
       email: createUser.email,
-      password_hash: await bcrypt.hash(createUser.password, 10)
+      password_hash: hashedPassword
     });
     if (!user) {
       throw new BadRequestException('User registration failed');
