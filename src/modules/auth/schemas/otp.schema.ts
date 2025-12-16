@@ -18,4 +18,4 @@ export class Otp {
 export type OtpDocument = Otp & Document;
 
 export const OtpSchema = SchemaFactory.createForClass(Otp);
-export const OtpModel = MongooseModule.forFeature([{ name: Otp.name, schema: OtpSchema }]);
+export const otpModel = MongooseModule.forFeature([{ name: Otp.name, schema: OtpSchema }]);
