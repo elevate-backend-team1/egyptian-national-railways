@@ -12,7 +12,7 @@ export class TicketService {
     private readonly ticketModel: Model<TicketDocument>
   ) {}
 
-  async create(userId, createTicketDto: CreateTicketDto): Promise<Ticket> {
+  async create(userId: string, createTicketDto: CreateTicketDto): Promise<Ticket> {
     const ticket = new this.ticketModel({
       ...createTicketDto,
       userId: new Types.ObjectId(userId),
@@ -37,5 +37,24 @@ export class TicketService {
     Object.assign(ticket, updateTicketDto);
 
     return ticket.save();
+  }
+
+  // Get list of tickets
+  async listTickets(): Promise<Ticket[]> {
+    const tickets = await this.ticketModel.find();
+
+    if (!tickets || tickets.length === 0) {
+      throw new NotFoundException('No tickets found');
+    }
+    return tickets;
+  }
+
+  // Delete specific ticket by id
+  async deleteTicket(id: string): Promise<string> {
+    const result = await this.ticketModel.findByIdAndDelete(id);
+    if (!result) {
+      throw new NotFoundException(`Ticket with ID ${id} not found`);
+    }
+    return 'Ticket deleted successfully';
   }
 }
