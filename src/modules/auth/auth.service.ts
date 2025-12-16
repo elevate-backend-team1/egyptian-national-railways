@@ -71,14 +71,14 @@ export class AuthService {
   /**
    * Generate both access and refresh tokens
    */
-  generateTokens(payload: TokenPayload) {
+  generateTokens(payload: TokenPayload): { accessToken: string; refreshToken: string } {
     return {
       accessToken: this.generateAccessToken(payload),
       refreshToken: this.generateRefreshToken(payload)
     };
   }
 
-  async create(createUser: createUserDto) {
+  async create(createUser: createUserDto): Promise<User> {
     const hashedPassword: string = await bcrypt.hash(createUser.password, 10);
     const user = await this.userModel.create({
       email: createUser.email,
@@ -104,7 +104,7 @@ export class AuthService {
     );
   }
 
-  async generateOtp(email: string) {
+  async generateOtp(email: string): Promise<{ message: string }> {
     const existing = await this.otpModel.findOne({
       email,
       is_valid: true,
@@ -130,7 +130,7 @@ export class AuthService {
     return { message: 'OTP sent successfully' };
   }
 
-  async verifyOtp(email: string, code: string) {
+  async verifyOtp(email: string, code: string): Promise<{ message: string }> {
     const otpRecord = await this.otpModel.findOne({ email, code, is_valid: true });
 
     if (!otpRecord) {
@@ -149,7 +149,7 @@ export class AuthService {
     return { message: 'OTP verified successfully' };
   }
 
-  async resendOtp(email: string) {
+  async resendOtp(email: string): Promise<{ message: string }> {
     await this.otpModel.updateMany({ email, is_valid: true }, { is_valid: false });
     return this.generateOtp(email);
   }
@@ -187,7 +187,7 @@ export class AuthService {
   /**
    * change logged user password service
    */
-  async changeUserPassword(userId: string, body: ChangePasswordDto) {
+  async changeUserPassword(userId: string, body: ChangePasswordDto): Promise<ApiResponses<null>> {
     // Find user
     const user = await this.userModel.findById(userId);
     if (!user) {
@@ -210,7 +210,7 @@ export class AuthService {
   /**
    * forgot password service
    */
-  async forgotPassword(email: ForgotPasswordDto) {
+  async forgotPassword(email: ForgotPasswordDto): Promise<ApiResponses<null>> {
     // check user email
     const user = await this.userModel.findOne({ email: email.email });
     if (!user) {
@@ -236,7 +236,7 @@ export class AuthService {
   /**
    * reset password service
    */
-  async resetPassword(dto: ResetPasswordDto) {
+  async resetPassword(dto: ResetPasswordDto): Promise<ApiResponses<null>> {
     const hashedPassword: string = await bcrypt.hash(dto.newPassword, 10);
     // update user password
     const user = await this.userModel.findOneAndUpdate(
