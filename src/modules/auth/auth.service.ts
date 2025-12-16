@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { createUserDto } from './dto/create-user.dto';
@@ -21,7 +15,6 @@ import * as bcrypt from 'bcrypt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiResponses } from 'src/common/dto/response.dto';
-import { log } from 'console';
 import { handleServiceError } from 'src/common/utils/errorHandler';
 
 export interface TokenPayload {
