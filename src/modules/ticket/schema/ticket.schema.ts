@@ -7,7 +7,7 @@ export type TicketDocument = HydratedDocument<Ticket>;
 @Schema({ timestamps: true })
 export class Ticket {
   @Prop({
-    required: true,
+    // required: true,
     unique: true
   })
   ticketNumber: string;
@@ -125,7 +125,7 @@ TicketSchema.pre('save', async function (next) {
   const year = new Date().getFullYear();
   const counterName = `ticketNumber-${year}`;
 
-  const counter: Counter = await counterModel.findOneAndUpdate(
+  const counter = await counterModel.findOneAndUpdate(
     {
       name: counterName // =================> search for Counter Name in Counter Collection
     },

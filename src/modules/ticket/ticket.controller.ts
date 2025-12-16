@@ -1,8 +1,9 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { Ticket } from './schema';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ApiResponses } from 'src/common/dto/response.dto';
+import { OneWayReservationDto } from './dto';
 
 @Controller('tickets')
 export class TicketController {
@@ -25,5 +26,15 @@ export class TicketController {
   @Public()
   async deleteTicket(@Param('id') id: string): Promise<ApiResponses<void>> {
     return await this.ticketsService.deleteTicket(id);
+  }
+
+  /**
+   * @api {post} /tickets/onWayReserve Reserve one way ticket
+   * @returns {Ticket}
+   */
+  @Post('onWayReserve')
+  @Public()
+  reserveOneWay(@Body() body: OneWayReservationDto): Promise<ApiResponses<Ticket>> {
+  return this.ticketsService.reserveOneWay(body);
   }
 }
