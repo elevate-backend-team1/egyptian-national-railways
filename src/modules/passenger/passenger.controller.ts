@@ -1,5 +1,6 @@
 // src/passengers/passengers.controller.ts
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import type { Request } from 'express';
 import { PassengersService } from './passenger.service';
 import { CreatePassengerDto } from './dto/create-passenger.dto';
 import { UpdatePassengerDto } from './dto/update-passenger.dto';
@@ -10,27 +11,27 @@ export class PassengersController {
   constructor(private readonly passengersService: PassengersService) {}
 
   @Post()
-  create(@Req() req, @Body() dto: CreatePassengerDto) {
-    return this.passengersService.create(req.user._id, dto);
+  create(@Req() req: Request, @Body() dto: CreatePassengerDto) {
+    return this.passengersService.create((req.user as any)._id, dto);
   }
 
   @Get()
-  findAll(@Req() req) {
-    return this.passengersService.findAll(req.user._id);
+  findAll(@Req() req: Request) {
+    return this.passengersService.findAll((req.user as any)._id);
   }
 
   @Get(':id')
-  findOne(@Req() req, @Param('id') id: string) {
-    return this.passengersService.findOne(req.user._id, id);
+  findOne(@Req() req: Request, @Param('id') id: string) {
+    return this.passengersService.findOne((req.user as any)._id, id);
   }
 
   @Patch(':id')
-  update(@Req() req, @Param('id') id: string, @Body() dto: UpdatePassengerDto) {
-    return this.passengersService.update(req.user._id, id, dto);
+  update(@Req() req: Request, @Param('id') id: string, @Body() dto: UpdatePassengerDto) {
+    return this.passengersService.update((req.user as any)._id, id, dto);
   }
 
   @Delete(':id')
-  remove(@Req() req, @Param('id') id: string) {
-    return this.passengersService.remove(req.user._id, id);
+  remove(@Req() req: Request, @Param('id') id: string) {
+    return this.passengersService.remove((req.user as any)._id, id);
   }
 }
