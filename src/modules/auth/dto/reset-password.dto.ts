@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, Length, Matches, ValidateIf } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 import { Match } from 'src/common/decorators/match.decorator';
 
 export class ResetPasswordDto {
@@ -23,8 +23,8 @@ export class ResetPasswordDto {
   @IsNotEmpty()
   @IsString()
   @Match('newPassword', { message: 'confirm password must match new password' })
-  @ValidateIf((o) => o.newPassword === o.confirmNewPassword, {
-    message: 'new password and confirm password do not match'
-  })
+  // @ValidateIf((o) => o.newPassword === o.confirmNewPassword, {
+  //   message: 'new password and confirm password do not match'
+  // })
   confirmNewPassword: string;
 }

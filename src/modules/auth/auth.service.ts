@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async create(createUser: createUserDto) {
-    const user = this.userModel.create({
+    const user = await this.userModel.create({
       email: createUser.email,
       password_hash: await bcrypt.hash(createUser.password, 10)
     });
@@ -226,7 +226,7 @@ export class AuthService {
       user.verified = true;
       await user.save();
 
-      throw new InternalServerErrorException('Failed to send password reset code');
+      throw new InternalServerErrorException('Failed to send password reset code', error.message);
     }
 
     return ApiResponses.success('Password reset code sent to your email', null);
