@@ -2,7 +2,7 @@ import { Controller, Delete, Get, Param } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { Ticket } from './schema';
 import { Public } from 'src/common/decorators/public.decorator';
-import { ApiResponse } from 'src/common/dto/response.dto';
+import { ApiResponses } from 'src/common/dto/response.dto';
 
 @Controller('tickets')
 export class TicketController {
@@ -13,7 +13,7 @@ export class TicketController {
    */
   @Get()
   @Public()
-  async findAllTickets(): Promise<ApiResponse<Ticket[]>> {
+  async findAllTickets(): Promise<ApiResponses<Ticket[]>> {
     return await this.ticketsService.listTickets();
   }
 
@@ -23,7 +23,7 @@ export class TicketController {
    */
   @Delete(':id')
   @Public()
-  async deleteTicket(@Param('id') id: string) {
+  async deleteTicket(@Param('id') id: string): Promise<ApiResponses<void>> {
     return await this.ticketsService.deleteTicket(id);
   }
 }

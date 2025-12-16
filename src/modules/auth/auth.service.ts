@@ -79,10 +79,14 @@ export class AuthService {
   }
 
   async create(createUser: createUserDto) {
-    return this.userModel.create({
+    const user = this.userModel.create({
       email: createUser.email,
       password_hash: await bcrypt.hash(createUser.password, 10)
     });
+    if (!user) {
+      throw new BadRequestException('User registration failed');
+    }
+    return user;
   }
 
   async completeRegister(email: string, updateData: updateUserDto) {

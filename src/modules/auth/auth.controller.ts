@@ -4,7 +4,6 @@ import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 
@@ -14,10 +13,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUserDto: createUserDto) {
-    const user = await this.authService.create(createUserDto);
-    if (!user) {
-      throw new Error('User registration failed');
-    }
+    await this.authService.create(createUserDto);
     return await this.authService.generateOtp(createUserDto.email);
   }
 
