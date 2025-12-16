@@ -21,8 +21,8 @@ export class Ticket {
 
   @Prop({
     type: Types.ObjectId,
-    ref: 'Trip',
-    required: true
+    ref: 'Trip'
+    // required: true
   })
   tripId: Types.ObjectId;
 

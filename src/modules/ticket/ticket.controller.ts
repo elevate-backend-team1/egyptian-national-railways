@@ -1,7 +1,29 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Delete, Get, Param } from '@nestjs/common';
 import { TicketService } from './ticket.service';
+import { Ticket } from './schema';
+import { Public } from 'src/common/decorators/public.decorator';
+import { ApiResponses } from 'src/common/dto/response.dto';
 
-@Controller('ticket')
+@Controller('tickets')
 export class TicketController {
   constructor(private readonly ticketsService: TicketService) {}
+  /**
+   * GET/tickets
+   * @Returns list of tickets
+   */
+  @Get()
+  @Public()
+  async findAllTickets(): Promise<ApiResponses<Ticket[]>> {
+    return await this.ticketsService.listTickets();
+  }
+
+  /**
+   * DELETE/tickets/:id
+   * @Returns no content
+   */
+  @Delete(':id')
+  @Public()
+  async deleteTicket(@Param('id') id: string): Promise<ApiResponses<void>> {
+    return await this.ticketsService.deleteTicket(id);
+  }
 }

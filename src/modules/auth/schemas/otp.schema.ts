@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -18,3 +18,4 @@ export class Otp {
 export type OtpDocument = Otp & Document;
 
 export const OtpSchema = SchemaFactory.createForClass(Otp);
+export const otpModel = MongooseModule.forFeature([{ name: Otp.name, schema: OtpSchema }]);
