@@ -6,6 +6,8 @@ import { Model } from 'mongoose';
 import { Trip } from './schema/trip.schema';
 import { ApiResponses } from '../common/dto/response.dto';
 import { ApiFeatures } from '../common/utils/ApiFeatures';
+import { QueryTripDto } from './dto/query-trip.dto';
+import { PaginatedResponse, PaginationMetadata } from '../common/interfaces/pagination.interface';
 
 @Injectable()
 export class TripService {
@@ -21,7 +23,7 @@ export class TripService {
   }
 
   // Get trip list
-  async findAll(query: any): Promise<{ pagination: any; tripList: Trip[] }> {
+  async findAll(query: QueryTripDto): Promise<PaginatedResponse<Trip>> {
     const features = new ApiFeatures(this.tripModel.find(), query)
       .filter()
       .sort()
@@ -29,12 +31,12 @@ export class TripService {
       .search(['departureStation', 'arrivalStation']);
 
     // execute pagination with metadata
-    const paginationData = await features.paginateWithMeta(this.tripModel);
+    const pagination: PaginationMetadata = await features.paginateWithMeta(this.tripModel);
 
     // build query
     const trips = await features.getQuery();
 
-    return { pagination: paginationData, tripList: trips };
+    return { pagination, data: trips };
   }
 
   // Get a specific trip by ID

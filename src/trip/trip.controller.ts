@@ -5,6 +5,8 @@ import { UpdateTripDto } from './dto/update-trip.dto';
 import { Trip } from './schema/trip.schema';
 import { ApiResponses } from '../common/dto/response.dto';
 import { Public } from '../common/decorators/public.decorator';
+import { QueryTripDto } from './dto/query-trip.dto';
+import { PaginatedResponse } from 'src/common/interfaces/pagination.interface';
 
 @Controller('trips')
 export class TripController {
@@ -26,7 +28,7 @@ export class TripController {
    */
   @Get()
   @Public()
-  async findAll(@Query() query: any): Promise<{ pagination: any; tripList: Trip[] }> {
+  async findAll(@Query() query: QueryTripDto): Promise<PaginatedResponse<Trip>> {
     return this.tripService.findAll(query);
   }
 

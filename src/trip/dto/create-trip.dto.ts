@@ -9,7 +9,7 @@ export class CreateTripDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }): string => value.toLowerCase())
+  @Transform(({ value }: { value: string }): string => value.toLowerCase())
   departureStation: string;
 
   @ApiProperty({
@@ -18,7 +18,7 @@ export class CreateTripDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }): string => value.toLowerCase())
+  @Transform(({ value }: { value: string }): string => value.toLowerCase())
   arrivalStation: string;
 
   @ApiProperty({

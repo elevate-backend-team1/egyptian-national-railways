@@ -1,10 +1,11 @@
 import { Query } from 'mongoose';
+import { QueryTripDto } from 'src/trip/dto/query-trip.dto';
 
 export class ApiFeatures<T> {
   mongooseQuery: Query<T[], T>;
-  queryString: Record<string, unknown>;
+  queryString: QueryTripDto;
 
-  constructor(mongooseQuery: Query<T[], T>, queryString: Record<string, unknown>) {
+  constructor(mongooseQuery: Query<T[], T>, queryString: QueryTripDto) {
     this.mongooseQuery = mongooseQuery;
     this.queryString = queryString;
   }
@@ -15,13 +16,13 @@ export class ApiFeatures<T> {
     const excludedFields = ['page', 'limit', 'sort', 'fields', 'keyword'];
 
     excludedFields.forEach((field) => {
-      delete queryStringObj[field];
+      delete queryStringObj[field as keyof QueryTripDto];
     });
     // add $ operator to query string =>
     let reqQuery = JSON.stringify(queryStringObj);
     reqQuery = reqQuery.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
 
-    this.mongooseQuery = this.mongooseQuery.find(JSON.parse(reqQuery));
+    this.mongooseQuery = this.mongooseQuery.find(JSON.parse(reqQuery) as Record<string, unknown>);
     return this;
   }
 

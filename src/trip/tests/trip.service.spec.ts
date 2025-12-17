@@ -152,7 +152,7 @@ describe('TripService', () => {
 
       expect(result).toEqual({
         pagination: mockPagination,
-        tripList: mockTrips
+        data: mockTrips
       });
       expect(ApiFeatures).toHaveBeenCalledWith(mockTripModel.find(), query);
       expect(mockApiFeatures.filter).toHaveBeenCalled();
@@ -189,7 +189,7 @@ describe('TripService', () => {
 
       expect(result).toEqual({
         pagination: mockPagination,
-        tripList: mockTrips
+        data: mockTrips
       });
     });
 
@@ -217,8 +217,8 @@ describe('TripService', () => {
       const result = await service.findAll(query);
 
       expect(result).toEqual({
-        pagination: mockPagination,
-        tripList: []
+        data: [],
+        pagination: mockPagination
       });
     });
 
@@ -251,7 +251,7 @@ describe('TripService', () => {
 
       const result = await service.findAll(query);
 
-      expect(result.tripList).toEqual(mockTrips);
+      expect(result.data).toEqual(mockTrips);
       expect(result.pagination).toEqual(mockPagination);
     });
   });
