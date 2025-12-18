@@ -1,12 +1,15 @@
-import { IsOptional, IsEnum, IsDateString, IsNumber } from 'class-validator';
+import { IsOptional, IsEnum, IsNumber, IsDate } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { Status } from './status.enum';
 
 export class UpdateTicketDto {
   @IsOptional()
-  @IsEnum(['booked', 'paid', 'cancelled', 'refunded', 'expired'])
-  status?: 'booked' | 'paid' | 'cancelled' | 'refunded' | 'expired';
+  @IsEnum(Status)
+  status?: Status;
 
   @IsOptional()
-  @IsDateString()
+  @IsDate()
+  @Transform(({ value }: { value: string | number }) => new Date(value))
   paidTime?: Date;
 
   @IsOptional()
