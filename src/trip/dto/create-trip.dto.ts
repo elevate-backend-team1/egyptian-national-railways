@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsNumber, IsDate, IsOptional, IsBoolean, Min, Matches, MinDate } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTripDto {
@@ -9,7 +9,7 @@ export class CreateTripDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: { value: string }): string => value.toLowerCase())
+  @Transform(({ value }: TransformFnParams): string => (typeof value === 'string' ? value.toLowerCase().trim() : value))
   departureStation: string;
 
   @ApiProperty({
@@ -18,7 +18,7 @@ export class CreateTripDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }: { value: string }): string => value.toLowerCase())
+  @Transform(({ value }: TransformFnParams): string => (typeof value === 'string' ? value.toLowerCase().trim() : value))
   arrivalStation: string;
 
   @ApiProperty({
@@ -28,9 +28,7 @@ export class CreateTripDto {
   })
   @IsDate()
   @Type(() => Date)
-  @MinDate(new Date(), {
-    message: 'Trip date must be in the future'
-  })
+  @MinDate(() => new Date(), { message: 'Trip date must be in the future' })
   tripDate: Date;
 
   @ApiProperty({
