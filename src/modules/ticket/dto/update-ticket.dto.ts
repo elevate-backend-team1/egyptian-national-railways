@@ -1,7 +1,7 @@
 import { IsOptional, IsEnum, IsNumber, IsDate } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { Status } from './status.enum';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateTicketDto {
   @ApiPropertyOptional({ enum: Status, description: 'Ticket status' })
