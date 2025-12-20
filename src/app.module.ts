@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { TicketModule } from './modules/ticket/ticket.module';
 import { CompanionModule } from './modules/companion/companion.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { TripModule } from './trip/trip.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,7 +18,8 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
     AuthModule,
     TicketModule,
     CompanionModule,
-    OnboardingModule
+    OnboardingModule,
+    TripModule
   ],
   controllers: [AppController],
   providers: [AppService]
