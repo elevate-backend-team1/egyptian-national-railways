@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { Ticket, TicketDocument } from './schema';
-import { Status } from './dto/status.enum';
+import { Status } from './enums/status.enum';
 
 @Injectable()
 export class TicketService {

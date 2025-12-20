@@ -1,7 +1,7 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Counter } from './counter.schema';
-import { Status } from '../dto/status.enum';
+import { ticketStatus } from '../enums/status.enum';
 
 export type TicketDocument = HydratedDocument<Ticket>;
 
@@ -72,10 +72,10 @@ export class Ticket {
 
   @Prop({
     type: String,
-    enum: Status,
-    default: Status.BOOKED
+    enum: ticketStatus,
+    default: ticketStatus.BOOKED
   })
-  status: Status;
+  status: ticketStatus;
 
   @Prop({
     type: String
@@ -108,7 +108,7 @@ export const TicketModel = MongooseModule.forFeature([{ name: Ticket.name, schem
  */
 
 TicketSchema.pre('save', function (next) {
-  if (this.status === Status.CANCELLED && !this.cancelDate) {
+  if (this.status === ticketStatus.CANCELLED && !this.cancelDate) {
     this.cancelDate = new Date();
   }
   next();

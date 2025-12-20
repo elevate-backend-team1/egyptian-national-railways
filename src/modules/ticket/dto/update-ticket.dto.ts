@@ -1,13 +1,13 @@
 import { IsOptional, IsEnum, IsNumber, IsDate } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { Status } from './status.enum';
+import { ticketStatus } from '../enums/status.enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateTicketDto {
-  @ApiPropertyOptional({ enum: Status, description: 'Ticket status' })
+  @ApiPropertyOptional({ enum: ticketStatus, description: 'Ticket status' })
   @IsOptional()
-  @IsEnum(Status)
-  status?: Status;
+  @IsEnum(ticketStatus)
+  status?: ticketStatus;
 
   @ApiPropertyOptional({ description: 'Payment timestamp', example: '2023-12-25T10:30:00Z' })
   @IsOptional()
