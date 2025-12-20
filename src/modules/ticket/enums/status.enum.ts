@@ -1,4 +1,4 @@
-export enum Status {
+export enum ticketStatus {
   BOOKED = 'booked',
   PAID = 'paid',
   CANCELLED = 'cancelled',

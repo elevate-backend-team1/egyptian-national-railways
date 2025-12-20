@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { Ticket, TicketDocument } from './schema';
-import { Status } from './dto/status.enum';
+import { ticketStatus } from './enums/status.enum';
 
 @Injectable()
 export class TicketService {
@@ -31,7 +31,7 @@ export class TicketService {
     }
 
     // Business rule
-    if (updateTicketDto.status === Status.PAID && !ticket.paidTime) {
+    if (updateTicketDto.status === ticketStatus.PAID && !ticket.paidTime) {
       ticket.paidTime = new Date();
     }
 
