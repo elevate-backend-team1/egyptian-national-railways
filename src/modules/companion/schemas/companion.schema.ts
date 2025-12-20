@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class Companion {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
@@ -22,4 +22,5 @@ export class Companion {
 }
 export type CompanionDocument = Companion & Document;
 export const CompanionSchema = SchemaFactory.createForClass(Companion);
+export const companionModel = MongooseModule.forFeature([{ name: Companion.name, schema: CompanionSchema }]);
 CompanionSchema.index({ owner_user_id: 1, national_id: 1 }, { unique: true });

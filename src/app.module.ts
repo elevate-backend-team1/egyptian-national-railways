@@ -5,7 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { TicketModule } from './modules/ticket/ticket.module';
-
+import { CompanionModule } from './modules/companion/companion.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,7 +15,9 @@ import { TicketModule } from './modules/ticket/ticket.module';
     }),
     MongooseModule.forRoot(process.env.DATABASE_URL || 'mongodb://localhost/railways'),
     AuthModule,
-    TicketModule
+    TicketModule,
+    CompanionModule,
+    OnboardingModule
   ],
   controllers: [AppController],
   providers: [AppService]
