@@ -9,12 +9,12 @@ export class Companion {
   full_name: string;
 
   @Prop()
-  national_id: string;
+  national_id?: string;
 
   @Prop()
-  birth_date: Date;
+  birth_date?: Date;
 
-  @Prop()
+  @Prop({ required: true })
   gender: string;
 
   @Prop()
