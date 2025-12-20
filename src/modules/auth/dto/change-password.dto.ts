@@ -1,11 +1,17 @@
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 import { Match } from 'src/common/decorators/match.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class ChangePasswordDto {
+  @ApiProperty({ example: 'OldP@ssw0rd', description: 'Current password' })
   @IsNotEmpty()
   @IsString()
   currentPassword: string;
 
+  @ApiProperty({
+    example: 'NewP@ssw0rd',
+    description: 'New password (must be 8-32 characters, contain uppercase, lowercase, number, and special character)'
+  })
   @IsNotEmpty()
   @IsString()
   @Length(8, 32, {
@@ -20,6 +26,10 @@ export class ChangePasswordDto {
   })
   newPassword: string;
 
+  @ApiProperty({
+    example: 'NewP@ssw0rd',
+    description: 'Confirm new password (must match the newPassword field)'
+  })
   @IsNotEmpty()
   @IsString()
   @Match('newPassword', { message: 'confirm password must match new password' })

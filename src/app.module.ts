@@ -12,7 +12,7 @@ import { TicketModule } from './modules/ticket/ticket.module';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/egyptian-railways'),
+    MongooseModule.forRoot(process.env.DATABASE_URL || 'mongodb://localhost/railways'),
     AuthModule,
     TicketModule
   ],
