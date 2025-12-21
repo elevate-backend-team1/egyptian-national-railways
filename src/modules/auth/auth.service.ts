@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { createUserDto } from './dto/create-user.dto';
@@ -21,6 +15,7 @@ import * as bcrypt from 'bcrypt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiResponses } from 'src/common/dto/response.dto';
+import { handleServiceError } from 'src/common/utils/errorHandler';
 
 export interface TokenPayload {
   sub: string;
@@ -71,18 +66,23 @@ export class AuthService {
   /**
    * Generate both access and refresh tokens
    */
-  generateTokens(payload: TokenPayload) {
+  generateTokens(payload: TokenPayload): { accessToken: string; refreshToken: string } {
     return {
       accessToken: this.generateAccessToken(payload),
       refreshToken: this.generateRefreshToken(payload)
     };
   }
 
-  async create(createUser: createUserDto) {
-    return this.userModel.create({
+  async create(createUser: createUserDto): Promise<User> {
+    const hashedPassword: string = await bcrypt.hash(createUser.password, 10);
+    const user = await this.userModel.create({
       email: createUser.email,
-      password_hash: await bcrypt.hash(createUser.password, 10)
+      password_hash: hashedPassword
     });
+    if (!user) {
+      throw new BadRequestException('User registration failed');
+    }
+    return user;
   }
 
   async completeRegister(email: string, updateData: updateUserDto) {
@@ -95,11 +95,14 @@ export class AuthService {
         role: 'passenger',
         verified: true
       },
-      { new: true }
+      {
+        new: true,
+        projection: { password_hash: 0 }
+      }
     );
   }
 
-  async generateOtp(email: string) {
+  async generateOtp(email: string): Promise<{ message: string }> {
     const existing = await this.otpModel.findOne({
       email,
       is_valid: true,
@@ -125,7 +128,7 @@ export class AuthService {
     return { message: 'OTP sent successfully' };
   }
 
-  async verifyOtp(email: string, code: string) {
+  async verifyOtp(email: string, code: string): Promise<{ message: string }> {
     const otpRecord = await this.otpModel.findOne({ email, code, is_valid: true });
 
     if (!otpRecord) {
@@ -144,7 +147,7 @@ export class AuthService {
     return { message: 'OTP verified successfully' };
   }
 
-  async resendOtp(email: string) {
+  async resendOtp(email: string): Promise<{ message: string }> {
     await this.otpModel.updateMany({ email, is_valid: true }, { is_valid: false });
     return this.generateOtp(email);
   }
@@ -157,8 +160,9 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('User not found');
     }
+    const isMatch: boolean = await bcrypt.compare(password, user.password_hash);
 
-    if (user.password_hash !== password) {
+    if (!isMatch) {
       throw new BadRequestException('Invalid password');
     }
 
@@ -182,19 +186,19 @@ export class AuthService {
   /**
    * change logged user password service
    */
-  async changeUserPassword(userId: string, body: ChangePasswordDto) {
+  async changeUserPassword(userId: string, body: ChangePasswordDto): Promise<ApiResponses<null>> {
     // Find user
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
     // Check if current password matches
-    const isMatch = await bcrypt.compare(body.currentPassword, user.password_hash);
+    const isMatch: boolean = await bcrypt.compare(body.currentPassword, user.password_hash);
     if (!isMatch) {
       throw new UnauthorizedException('Old password is incorrect');
     }
     // update user password
-    const hashedPassword = await bcrypt.hash(body.newPassword, 10);
+    const hashedPassword: string = await bcrypt.hash(body.newPassword, 10);
     user.password_hash = hashedPassword;
 
     await user.save();
@@ -205,7 +209,7 @@ export class AuthService {
   /**
    * forgot password service
    */
-  async forgotPassword(email: ForgotPasswordDto) {
+  async forgotPassword(email: ForgotPasswordDto): Promise<ApiResponses<null>> {
     // check user email
     const user = await this.userModel.findOne({ email: email.email });
     if (!user) {
@@ -217,12 +221,12 @@ export class AuthService {
       // Update user status to pendingVerification
       user.verified = false;
       await user.save();
-    } catch (error) {
+    } catch (error: unknown) {
       // Update user status to VERIFIED in case of failure
       user.verified = true;
       await user.save();
 
-      throw new InternalServerErrorException('Failed to send password reset code');
+      handleServiceError(error);
     }
 
     return ApiResponses.success('Password reset code sent to your email', null);
@@ -231,12 +235,13 @@ export class AuthService {
   /**
    * reset password service
    */
-  async resetPassword(dto: ResetPasswordDto) {
+  async resetPassword(dto: ResetPasswordDto): Promise<ApiResponses<null>> {
+    const hashedPassword: string = await bcrypt.hash(dto.newPassword, 10);
     // update user password
     const user = await this.userModel.findOneAndUpdate(
       { email: dto.email },
       {
-        password: await bcrypt.hash(dto.newPassword, 10)
+        password: hashedPassword
       }
     );
 

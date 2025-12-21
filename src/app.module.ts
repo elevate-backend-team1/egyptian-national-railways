@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { LocalizationModule } from './localization/localization.module';
 import { TicketModule } from './modules/ticket/ticket.module';
+import { TripModule } from './trip/trip.module';
+import { PassengersModule } from './modules/passenger/passenger.module';
 
 @Module({
   imports: [
@@ -13,10 +15,13 @@ import { TicketModule } from './modules/ticket/ticket.module';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/egyptian-railways'),
+    MongooseModule.forRoot(process.env.DATABASE_URL || 'mongodb://localhost/railways'),
     AuthModule,
     LocalizationModule,
-    TicketModule
+    TicketModule,
+    TripModule,
+    TicketModule,
+    PassengersModule
   ],
   controllers: [AppController],
   providers: [AppService]

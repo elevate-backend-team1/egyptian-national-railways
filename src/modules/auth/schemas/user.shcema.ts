@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop()
   full_name: string;
 
   @Prop({ required: true, unique: true })
@@ -18,7 +18,7 @@ export class User {
   @Prop({ required: true })
   password_hash: string;
 
-  @Prop({ unique: true })
+  @Prop()
   national_id: string;
 
   @Prop({ required: true, default: false })
@@ -28,4 +28,4 @@ export class User {
 export type UserDocument = User & Document;
 
 export const UserSchema = SchemaFactory.createForClass(User);
-export const UserModel = MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]);
+export const userModel = MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]);

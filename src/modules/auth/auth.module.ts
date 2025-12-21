@@ -6,8 +6,8 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { jwtConfig } from '../../config/jwt.config';
 import { MailModule } from 'src/common/mail/mail.module';
-import { UserModel } from './schemas/user.shcema';
-import { OtpModel } from './schemas/otp.schema';
+import { userModel } from './schemas/user.shcema';
+import { otpModel } from './schemas/otp.schema';
 
 @Module({
   imports: [
@@ -19,8 +19,8 @@ import { OtpModel } from './schemas/otp.schema';
       }
     }),
     MailModule,
-    UserModel,
-    OtpModel
+    userModel,
+    otpModel
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
