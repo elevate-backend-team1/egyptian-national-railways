@@ -1,8 +1,27 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, IsOptional, IsBoolean, Min, Matches, MinDate } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsDate,
+  IsOptional,
+  IsBoolean,
+  Min,
+  Matches,
+  MinDate,
+  IsMongoId
+} from 'class-validator';
 import { Transform, TransformFnParams, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTripDto {
+  @ApiProperty({
+    description: 'Train ID reference',
+    example: '507f1f77bcf86cd799439011'
+  })
+  @IsMongoId({ message: 'Invalid train ID format' })
+  @IsNotEmpty()
+  train: string;
+
   @ApiProperty({
     description: 'Departure station name',
     example: 'cairo'
@@ -87,8 +106,28 @@ export class CreateTripDto {
     minimum: 0
   })
   @IsNumber()
-  @Min(0, { message: 'Price must be a positive number' })
-  price: number;
+  @Min(0, { message: 'Base Price must be a positive number' })
+  basePrice: number;
+
+  @ApiPropertyOptional({
+    description: 'First class ticket price in EGP',
+    example: 200,
+    minimum: 0
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'First class Price must be a positive number' })
+  firstClassPrice?: number;
+
+  @ApiPropertyOptional({
+    description: 'Second class ticket price in EGP',
+    example: 150,
+    minimum: 0
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'Second class Price must be a positive number' })
+  secondClassPrice?: number;
 
   @ApiPropertyOptional({
     description: 'Whether the trip is active',

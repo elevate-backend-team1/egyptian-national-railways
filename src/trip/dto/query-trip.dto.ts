@@ -1,8 +1,16 @@
-import { IsString, IsOptional, IsDate, IsNumber, IsBoolean, Min, Max } from 'class-validator';
+import { IsString, IsOptional, IsDate, IsNumber, IsBoolean, Min, Max, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class QueryTripDto {
+  @ApiPropertyOptional({
+    description: 'Filter by train ID',
+    example: '507f1f77bcf86cd799439011'
+  })
+  @IsOptional()
+  @IsMongoId({ message: 'Invalid train ID format' })
+  train?: string;
+
   @ApiPropertyOptional({
     description: 'Filter by departure station',
     example: 'Cairo'
@@ -30,35 +38,20 @@ export class QueryTripDto {
   tripDate?: Date;
 
   @ApiPropertyOptional({
-    description: 'Filter trips from this date onwards',
-    example: '2024-12-20',
-    type: Date
+    description: 'Filter by departure time (HH:mm format)',
+    example: '14:30'
   })
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  fromDate?: Date;
+  @IsString()
+  departureTime?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter trips until this date',
-    example: '2024-12-31',
-    type: Date
+    description: 'Filter by arrival time (HH:mm format)',
+    example: '18:45'
   })
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  toDate?: Date;
-
-  @ApiPropertyOptional({
-    description: 'Minimum price filter',
-    example: 50,
-    minimum: 0
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  @Min(0)
-  minPrice?: number;
+  @IsString()
+  arrivalTime?: string;
 
   @ApiPropertyOptional({
     description: 'Maximum price filter',
@@ -69,7 +62,7 @@ export class QueryTripDto {
   @IsNumber()
   @Type(() => Number)
   @Min(0)
-  maxPrice?: number;
+  basePrice?: number;
 
   @ApiPropertyOptional({
     description: 'Minimum remaining seats',

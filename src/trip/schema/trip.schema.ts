@@ -1,10 +1,13 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type TripDocument = Trip & Document;
 
 @Schema({ timestamps: true })
 export class Trip {
+  @Prop({ required: true, type: Types.ObjectId, ref: 'Train' })
+  train: Types.ObjectId;
+
   @Prop({ required: true, trim: true })
   departureStation: string;
 
@@ -30,7 +33,13 @@ export class Trip {
   remainingSeats: number;
 
   @Prop({ required: true, min: 0 })
-  price: number;
+  basePrice: number; // Base price or economy/third class price
+
+  @Prop({ min: 0 })
+  firstClassPrice?: number;
+
+  @Prop({ min: 0 })
+  secondClassPrice?: number;
 
   @Prop({ default: true })
   isActive: boolean;

@@ -24,7 +24,8 @@ export class TripService {
 
   // Get trip list
   async findAll(query: QueryTripDto): Promise<PaginatedResponse<Trip>> {
-    const features = new ApiFeatures(this.tripModel.find(), query)
+    const features = new ApiFeatures(this.tripModel.find().populate('train'), query)
+      .paginate()
       .filter()
       .sort()
       .limitFields()
