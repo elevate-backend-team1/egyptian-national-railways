@@ -1,1 +1,1 @@
-export * from './oneWayReservation.dto'
+export * from './oneWayReservation.dto';
