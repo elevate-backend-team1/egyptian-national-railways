@@ -33,7 +33,7 @@ export class PassengersController {
   }
 
   @Delete(':id')
-  remove(@Req() req: AuthRequest  , @Param('id') id: string) {
+  remove(@Req() req: AuthRequest, @Param('id') id: string) {
     return this.passengersService.remove(req.user.userId, id);
   }
 }
