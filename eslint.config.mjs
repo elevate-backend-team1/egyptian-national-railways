@@ -7,7 +7,7 @@ import prettierRecommended from 'eslint-plugin-prettier/recommended';
 export default tseslint.config(
   // Ignore files
   {
-    ignores: ['dist/**', 'node_modules/**']
+    ignores: ['dist/**', 'node_modules/**', 'src/**/*.spec.ts']
   },
 
   // Base ESLint rules
