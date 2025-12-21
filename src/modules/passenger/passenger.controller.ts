@@ -1,11 +1,10 @@
 // src/passengers/passengers.controller.ts
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { PassengersService } from './passenger.service';
 import { CreatePassengerDto } from './dto/create-passenger.dto';
 import { UpdatePassengerDto } from './dto/update-passenger.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
-import type { JwtPayload } from '../auth/strategies/jwt.strategy';
 @Controller('passengers')
 @ApiTags('Passengers')
 @ApiBearerAuth()
