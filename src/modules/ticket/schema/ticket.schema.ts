@@ -1,14 +1,14 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { Counter } from './counter.schema';
 import { ticketStatus } from '../enums/status.enum';
+import { Counter } from './counter.schema';
 
 export type TicketDocument = HydratedDocument<Ticket>;
 
 @Schema({ timestamps: true })
 export class Ticket {
   @Prop({
-    required: true,
+    // required: true,
     unique: true
   })
   ticketNumber: string;

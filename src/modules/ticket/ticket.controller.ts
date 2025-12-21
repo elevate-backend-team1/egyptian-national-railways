@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { TicketService } from './ticket.service';
 import { Ticket } from './schema';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ApiResponses } from 'src/common/dto/response.dto';
+import { OneWayReservationDto } from './dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
@@ -58,5 +60,15 @@ export class TicketController {
   @ApiResponse({ status: 404, description: 'Ticket not found' })
   async deleteTicket(@Param('id') id: string): Promise<string> {
     return await this.ticketsService.deleteTicket(id);
+  }
+
+  /**
+   * @api {post} /tickets/onWayReserve Reserve one way ticket
+   * @returns {Ticket}
+   */
+  @Post('onWayReserve')
+  @Public()
+  reserveOneWay(@Body() body: OneWayReservationDto): Promise<ApiResponses<Ticket>> {
+    return this.ticketsService.reserveOneWay(body);
   }
 }

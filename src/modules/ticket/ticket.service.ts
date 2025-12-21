@@ -1,5 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ApiResponses } from 'src/common/dto/response.dto';
+import { OneWayReservationDto } from './dto';
+
 import { Model, Types } from 'mongoose';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
@@ -57,5 +60,41 @@ export class TicketService {
       throw new NotFoundException(`Ticket with ID ${id} not found`);
     }
     return 'Ticket deleted successfully';
+  }
+
+  /**
+   * Reserve one way ticket
+   */
+  async reserveOneWay(body: OneWayReservationDto): Promise<ApiResponses<Ticket>> {
+    // Check seat availability
+    const seatReserved = await this.ticketModel.findOne({
+      travelDate: new Date(body.travelDate),
+      carNumber: body.carNumber,
+      seatNumber: body.seatNumber,
+      status: { $in: ['booked', 'paid'] }
+    });
+
+    if (seatReserved) {
+      throw new BadRequestException('Seat already reserved');
+    }
+
+    // Create document
+    const ticket = await this.ticketModel.create({
+      userId: body.userId,
+
+      fromStation: body.fromStation,
+      toStation: body.toStation,
+      travelDate: body.travelDate,
+
+      class: body.class,
+      carNumber: body.carNumber,
+      seatNumber: body.seatNumber,
+
+      price: body.price,
+      status: 'booked'
+    });
+
+    // Return
+    return ApiResponses.success('Ticket reserved successfully', ticket);
   }
 }
