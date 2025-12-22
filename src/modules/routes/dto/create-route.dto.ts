@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsMongoId, IsNotEmpty, IsNumber, Min, min } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, Min } from 'class-validator';
 import { IRouteStop } from '../schema/route.schema';
 
 export class CreateRouteDto {
@@ -24,8 +24,9 @@ export class CreateRouteDto {
 
   @ApiProperty({
     description: 'Stops Stations ',
-    example:
-      '[{"stationId":"64b8f0c2e1d3c2a5f4e8b458","arrivalTime":"10:00","departureTime":"10:15","stopOrder":1,"distanceFromStart":50}]'
+    example: `[{"stationId":"64b8f0c2e1d3c2a5f4e8b458",
+    "arrivalTime":"10:00","departureTime":"10:15",
+    "stopOrder":1,"distanceFromStart":50}]`
   })
   @IsNotEmpty()
   stops: IRouteStop[];

@@ -9,6 +9,7 @@ import { TripModule } from './modules/trip/trip.module';
 import { TrainModule } from './modules/train/train.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
 import { StationsModule } from './modules/stations/stations.module';
+import { RoutesModule } from './modules/routes/routes.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { StationsModule } from './modules/stations/stations.module';
     TripModule,
     TrainModule,
     SchedulesModule,
-    StationsModule
+    StationsModule,
+    RoutesModule
   ],
   controllers: [AppController],
   providers: [AppService]

@@ -1,10 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { TrainService } from './train.service';
 import { CreateTrainDto } from './dto/create-train.dto';
 import { UpdateTrainDto } from './dto/update-train.dto';
 import { Public } from 'src/common/decorators/public.decorator';
-import { QueryTrainDto } from './dto/query-train.dto';
-
 @Controller('trains')
 export class TrainController {
   constructor(private readonly trainService: TrainService) {}
@@ -21,13 +19,12 @@ export class TrainController {
   }
 
   /**
-   *@param query
    * @returns list fo trains
    */
   @Get()
   @Public()
-  findAll(@Query() query: QueryTrainDto) {
-    return this.trainService.findAll(query);
+  findAll() {
+    return this.trainService.findAll();
   }
 
   /**

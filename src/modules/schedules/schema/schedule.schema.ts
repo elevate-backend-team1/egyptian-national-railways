@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -32,4 +32,5 @@ export class Schedule {
 }
 
 export type ScheduleDocument = Schedule & Document;
-export const ScheduleSchema = SchemaFactory.createForClass(Schedule);
+const ScheduleSchema = SchemaFactory.createForClass(Schedule);
+export const ScheduleModel = MongooseModule.forFeature([{ name: Schedule.name, schema: ScheduleSchema }]);

@@ -3,10 +3,10 @@ import { Types } from 'mongoose';
 
 export interface IRouteStop {
   stationId: Types.ObjectId;
-  arrivalTime: String;
-  departureTime: String;
-  stopOrder: Number;
-  distanceFromStart: Number;
+  arrivalTime: string;
+  departureTime: string;
+  stopOrder: number;
+  distanceFromStart: number;
 }
 
 export type RouteDocument = Route & Document;

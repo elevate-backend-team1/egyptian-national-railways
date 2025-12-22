@@ -67,6 +67,14 @@ export class CreateScheduleDto {
   @Min(1)
   durationMinutes: number;
 
+  @ApiProperty({})
+  @IsString()
+  status_en: string;
+
+  @ApiProperty({})
+  @IsString()
+  status_ar: string;
+
   @ApiPropertyOptional({ example: true, description: 'Whether schedule is active', default: true })
   @IsOptional()
   @IsBoolean()

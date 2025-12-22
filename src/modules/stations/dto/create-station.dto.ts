@@ -32,5 +32,6 @@ export class CreateStationDto {
   km_from_main_zero: number;
 
   @ApiProperty({ description: 'Geographical location of the station', example: { lat: 30.0444, lng: 31.2357 } })
+  @IsNotEmpty()
   location: { lat: number; lng: number };
 }

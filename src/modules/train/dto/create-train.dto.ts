@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, IsOptional, IsBoolean, IsEnum, IsArray, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsBoolean, IsEnum, IsArray, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Car, TrainTypeAr, TrainTypeEN } from '../schema/train.schema';
 
@@ -54,7 +54,6 @@ export class CreateTrainDto {
     minimum: 1
   })
   @IsArray()
-  @Min(1, { message: 'Cars must be at least 1' })
   cars: Car[];
 
   @ApiProperty({

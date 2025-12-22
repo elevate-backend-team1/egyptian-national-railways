@@ -5,9 +5,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Train } from './schema/train.schema';
 import { Model } from 'mongoose';
 import { ApiResponses } from 'src/common/dto/response.dto';
-import { QueryTrainDto } from './dto/query-train.dto';
-import { ApiFeatures } from 'src/common/utils/ApiFeatures';
-import { PaginatedResponse, PaginationMetadata } from 'src/common/interfaces/pagination.interface';
 
 @Injectable()
 export class TrainService {
@@ -27,19 +24,12 @@ export class TrainService {
     return newTrain;
   }
 
-  async findAll(queryDto: QueryTrainDto): Promise<PaginatedResponse<Train>> {
-    const features = new ApiFeatures(this.trainModel.find(), queryDto)
-      .paginate()
-      .filter()
-      .sort()
-      .limitFields()
-      .search(['trainName', 'trainNumber']);
-
-    const pagination: PaginationMetadata = await features.paginateWithMeta(this.trainModel);
-
-    const trains = await features.getQuery();
-
-    return { pagination, data: trains };
+  async findAll(): Promise<Train[]> {
+    const trainList = await this.trainModel.find();
+    if (!trainList || trainList.length === 0) {
+      throw new NotFoundException('No trains found');
+    }
+    return trainList;
   }
 
   async findOne(id: string): Promise<Train> {
