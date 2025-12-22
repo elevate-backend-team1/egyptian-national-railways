@@ -4,10 +4,10 @@ import { UpdateTripDto } from './dto/update-trip.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Trip } from './schema/trip.schema';
-import { ApiResponses } from '../common/dto/response.dto';
-import { ApiFeatures } from '../common/utils/ApiFeatures';
+import { ApiResponses } from '../../common/dto/response.dto';
+import { ApiFeatures } from '../../common/utils/ApiFeatures';
 import { QueryTripDto } from './dto/query-trip.dto';
-import { PaginatedResponse, PaginationMetadata } from '../common/interfaces/pagination.interface';
+import { PaginatedResponse, PaginationMetadata } from '../../common/interfaces/pagination.interface';
 
 @Injectable()
 export class TripService {

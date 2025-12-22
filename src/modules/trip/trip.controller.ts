@@ -3,8 +3,8 @@ import { TripService } from './trip.service';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { Trip } from './schema/trip.schema';
-import { ApiResponses } from '../common/dto/response.dto';
-import { Public } from '../common/decorators/public.decorator';
+import { ApiResponses } from '../../common/dto/response.dto';
+import { Public } from '../../common/decorators/public.decorator';
 import { QueryTripDto } from './dto/query-trip.dto';
 import { PaginatedResponse } from 'src/common/interfaces/pagination.interface';
 

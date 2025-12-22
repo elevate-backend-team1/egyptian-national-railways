@@ -5,8 +5,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { TicketModule } from './modules/ticket/ticket.module';
-import { TripModule } from './trip/trip.module';
-import { TrainModule } from './train/train.module';
+import { TripModule } from './modules/trip/trip.module';
+import { TrainModule } from './modules/train/train.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
