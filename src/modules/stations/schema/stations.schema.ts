@@ -1,4 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
+export type StationDocument = Station & Document;
 
 @Schema({ timestamps: true })
 export class Station {
@@ -9,10 +11,10 @@ export class Station {
   name_ar: string;
 
   @Prop({ required: true, index: true })
-  city_ar: string;
+  city_en: string;
 
   @Prop({ required: true, index: true })
-  city_en: string;
+  city_ar: string;
 
   @Prop({ required: true, unique: true })
   code: string;
@@ -21,8 +23,8 @@ export class Station {
   km_from_main_zero: number;
 
   @Prop({ type: { lat: Number, lng: Number } })
-  geo_location: { lat: number; lng: number };
+  location: { lat: number; lng: number };
 }
-export type StationDocument = Station & Document;
 
-export const StationSchema = SchemaFactory.createForClass(Station);
+const StationSchema = SchemaFactory.createForClass(Station);
+export const StationModel = MongooseModule.forFeature([{ name: Station.name, schema: StationSchema }]);

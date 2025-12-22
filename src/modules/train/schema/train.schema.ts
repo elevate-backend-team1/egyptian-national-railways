@@ -1,75 +1,60 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type TrainDocument = Train & Document;
+export enum Class {
+  FIRST = 'first',
+  SECOND = 'second',
+  THIRD = 'third'
+}
 
-export enum TrainType {
-  EXPRESS = 'express',
+export type Car = {
+  carNumber: number;
+  class: Class;
+  totalSeats: number;
+  // car_fee: number;
+  unavailableSeats: number[]; // Array of seat numbers that are unavailable
+};
+
+export enum TrainTypeEN {
   REGULAR = 'regular',
   VIP = 'vip',
+  EXPRESS = 'express',
   SLEEPER = 'sleeper'
 }
 
-export enum TrainStatus {
-  ACTIVE = 'active',
-  MAINTENANCE = 'maintenance',
-  OUT_OF_SERVICE = 'out_of_service'
+export enum TrainTypeAr {
+  REGULAR = 'عادي',
+  VIP = 'مميز',
+  EXPRESS = 'سريع',
+  SLEEPER = 'نوم'
 }
 
+export type TrainDocument = Train & Document;
 @Schema({ timestamps: true })
 export class Train {
-  @Prop({ required: true, unique: true, trim: true })
+  @Prop({ required: true, unique: true })
   trainNumber: string;
 
-  @Prop({ required: true, trim: true })
-  trainName: string;
+  @Prop({ required: true })
+  type_en: TrainTypeEN;
 
-  @Prop({
-    required: true,
-    enum: TrainType,
-    default: TrainType.REGULAR
-  })
-  type: TrainType;
+  @Prop({ required: true })
+  type_ar: TrainTypeAr;
 
-  @Prop({
-    required: true,
-    enum: TrainStatus,
-    default: TrainStatus.ACTIVE
-  })
-  status: TrainStatus;
+  @Prop({ required: true })
+  base_rate_per_km: number;
 
-  @Prop({ required: true, min: 1 })
-  totalSeats: number;
+  @Prop({ required: true })
+  min_fare: number;
 
-  @Prop({ required: true, min: 1 })
-  cars: number; // Number of cars
+  // @Prop({ default: 5 })
+  // insurance_fee: number;
 
-  @Prop({ min: 0, default: 0 })
-  firstClassSeats: number;
+  // @Prop({ default: 10 })
+  // reservation_fee: number;
 
-  @Prop({ min: 0, default: 0 })
-  secondClassSeats: number;
-
-  @Prop({ min: 0, default: 0 })
-  thirdClassSeats: number;
-
-  @Prop({ type: [String], default: [] })
-  amenities: string[]; // e.g., ['wifi', 'ac', 'dining', 'power_outlets']
-
-  @Prop({ min: 0 })
-  maxSpeed: number; // Maximum speed in km/h
-
-  @Prop()
-  manufacturer: string;
-
-  @Prop()
-  yearManufactured: number;
-
-  @Prop()
-  lastMaintenanceDate: Date;
-
-  @Prop()
-  nextMaintenanceDate: Date;
+  @Prop({ required: true })
+  cars: Car[];
 
   @Prop({ default: true })
   isActive: boolean;
@@ -81,19 +66,3 @@ export const TrainModel = MongooseModule.forFeature([{ name: Train.name, schema:
 // Add indexes for better query performance
 TrainSchema.index({ type: 1, status: 1 });
 TrainSchema.index({ status: 1 });
-
-// Virtual property to check if maintenance is due
-TrainSchema.virtual('isMaintenanceDue').get(function () {
-  if (!this.nextMaintenanceDate) return false;
-  return new Date() >= this.nextMaintenanceDate;
-});
-
-// Virtual property to get train age
-TrainSchema.virtual('trainAge').get(function () {
-  if (!this.yearManufactured) return null;
-  return new Date().getFullYear() - this.yearManufactured;
-});
-
-// Ensure virtuals are included when converting to JSON
-TrainSchema.set('toJSON', { virtuals: true });
-TrainSchema.set('toObject', { virtuals: true });
