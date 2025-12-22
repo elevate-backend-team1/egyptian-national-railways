@@ -39,28 +39,6 @@ export class QueryTrainDto {
   status?: TrainStatus;
 
   @ApiPropertyOptional({
-    description: 'Minimum total seats',
-    example: 100,
-    minimum: 0
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  @Min(0)
-  minTotalSeats?: number;
-
-  @ApiPropertyOptional({
-    description: 'Maximum total seats',
-    example: 300,
-    minimum: 0
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  @Min(0)
-  maxTotalSeats?: number;
-
-  @ApiPropertyOptional({
     description: 'Minimum number of carriages',
     example: 5,
     minimum: 1
@@ -108,15 +86,6 @@ export class QueryTrainDto {
   @Type(() => Number)
   @Min(1900)
   yearManufactured?: number;
-
-  @ApiPropertyOptional({
-    description: 'Filter by active status',
-    example: true
-  })
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  isActive?: boolean;
 
   @ApiPropertyOptional({
     description: 'Filter trains with maintenance due',
