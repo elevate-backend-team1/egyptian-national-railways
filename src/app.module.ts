@@ -7,6 +7,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { TicketModule } from './modules/ticket/ticket.module';
 import { TripModule } from './modules/trip/trip.module';
 import { TrainModule } from './modules/train/train.module';
+import { SchedulesModule } from './modules/schedules/schedules.module';
+import { StationsModule } from './modules/stations/stations.module';
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import { TrainModule } from './modules/train/train.module';
     AuthModule,
     TicketModule,
     TripModule,
-    TrainModule
+    TrainModule,
+    SchedulesModule,
+    StationsModule
   ],
   controllers: [AppController],
   providers: [AppService]
