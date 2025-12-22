@@ -1,5 +1,6 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { ticketStatus } from '../enums/status.enum';
 import { Counter } from './counter.schema';
 
 export type TicketDocument = HydratedDocument<Ticket>;
@@ -7,7 +8,7 @@ export type TicketDocument = HydratedDocument<Ticket>;
 @Schema({ timestamps: true })
 export class Ticket {
   @Prop({
-    required: true,
+    // required: true,
     unique: true
   })
   ticketNumber: string;
@@ -71,10 +72,10 @@ export class Ticket {
 
   @Prop({
     type: String,
-    enum: ['booked', 'paid', 'cancelled', 'refunded', 'expired'],
-    default: 'booked'
+    enum: ticketStatus,
+    default: ticketStatus.BOOKED
   })
-  status: string;
+  status: ticketStatus;
 
   @Prop({
     type: String
@@ -107,10 +108,9 @@ export const TicketModel = MongooseModule.forFeature([{ name: Ticket.name, schem
  */
 
 TicketSchema.pre('save', function (next) {
-  if (this.status === 'cancelled' && !this.cancelDate) {
+  if (this.status === ticketStatus.CANCELLED && !this.cancelDate) {
     this.cancelDate = new Date();
   }
-
   next();
 });
 

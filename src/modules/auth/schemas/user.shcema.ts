@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop()
   full_name: string;
 
   @Prop({ required: true, unique: true })
@@ -18,7 +18,7 @@ export class User {
   @Prop({ required: true })
   password_hash: string;
 
-  @Prop({ unique: true })
+  @Prop()
   national_id: string;
 
   @Prop({ required: true, default: false })

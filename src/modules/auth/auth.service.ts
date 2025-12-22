@@ -95,7 +95,10 @@ export class AuthService {
         role: 'passenger',
         verified: true
       },
-      { new: true }
+      {
+        new: true,
+        projection: { password_hash: 0 }
+      }
     );
   }
 
@@ -157,8 +160,9 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('User not found');
     }
+    const isMatch: boolean = await bcrypt.compare(password, user.password_hash);
 
-    if (user.password_hash !== password) {
+    if (!isMatch) {
       throw new BadRequestException('Invalid password');
     }
 
