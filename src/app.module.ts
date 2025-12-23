@@ -6,7 +6,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { LocalizationModule } from './localization/localization.module';
 import { TicketModule } from './modules/ticket/ticket.module';
-import { TripModule } from './trip/trip.module';
+import { TripModule } from './modules/trip/trip.module';
+import { TrainModule } from './modules/train/train.module';
+import { SchedulesModule } from './modules/schedules/schedules.module';
+import { StationsModule } from './modules/stations/stations.module';
+import { RoutesModule } from './modules/routes/routes.module';
 import { PassengersModule } from './modules/passenger/passenger.module';
 
 @Module({
@@ -20,6 +24,10 @@ import { PassengersModule } from './modules/passenger/passenger.module';
     LocalizationModule,
     TicketModule,
     TripModule,
+    TrainModule,
+    SchedulesModule,
+    StationsModule,
+    RoutesModule,
     TicketModule,
     PassengersModule
   ],

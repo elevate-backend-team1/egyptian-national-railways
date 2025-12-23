@@ -1,11 +1,26 @@
 import { Query } from 'mongoose';
-import { QueryTripDto } from 'src/trip/dto/query-trip.dto';
 
-export class ApiFeatures<T> {
+// Make the query string generic too
+export class ApiFeatures<T, Q = any> {
   mongooseQuery: Query<T[], T>;
-  queryString: QueryTripDto;
+  queryString: Q & {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    fields?: string;
+    keyword?: string;
+  };
 
-  constructor(mongooseQuery: Query<T[], T>, queryString: QueryTripDto) {
+  constructor(
+    mongooseQuery: Query<T[], T>,
+    queryString: Q & {
+      page?: number;
+      limit?: number;
+      sort?: string;
+      fields?: string;
+      keyword?: string;
+    }
+  ) {
     this.mongooseQuery = mongooseQuery;
     this.queryString = queryString;
   }
@@ -16,9 +31,9 @@ export class ApiFeatures<T> {
     const excludedFields = ['page', 'limit', 'sort', 'fields', 'keyword'];
 
     excludedFields.forEach((field) => {
-      delete queryStringObj[field as keyof QueryTripDto];
+      delete queryStringObj[field as keyof typeof queryStringObj];
     });
-    // add $ operator to query string =>
+
     let reqQuery = JSON.stringify(queryStringObj);
     reqQuery = reqQuery.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
 
@@ -26,18 +41,18 @@ export class ApiFeatures<T> {
     return this;
   }
 
-  // 1- Sorting Feature
+  // 2- Sorting Feature
   sort() {
     if (typeof this.queryString.sort === 'string') {
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.mongooseQuery = this.mongooseQuery.sort(sortBy);
     } else {
-      this.mongooseQuery = this.mongooseQuery.sort({ departureTime: 1 });
+      this.mongooseQuery = this.mongooseQuery.sort({ createdAt: -1 });
     }
     return this;
   }
 
-  // 3- Fields limiting Feature [for specifying fields to return object]
+  // 3- Fields limiting Feature
   limitFields() {
     const { fields } = this.queryString;
     if (typeof fields === 'string') {
@@ -67,27 +82,18 @@ export class ApiFeatures<T> {
 
   // 5- Pagination Feature
   paginate() {
-    const page = typeof this.queryString.page === 'string' ? Number(this.queryString.page) : 1;
-
-    const limit = typeof this.queryString.limit === 'string' ? Number(this.queryString.limit) : 20;
-
+    const page = this.queryString.page || 1;
+    const limit = this.queryString.limit || 20;
     const skip = (page - 1) * limit;
 
     this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
-
     return this;
   }
 
   // 6- Pagination with metaData
   async paginateWithMeta(model: { countDocuments: (filter: Record<string, unknown>) => Promise<number> }) {
-    const page = typeof this.queryString.page === 'string' ? Number(this.queryString.page) : 1;
-
-    const limit = typeof this.queryString.limit === 'string' ? Number(this.queryString.limit) : 20;
-
-    const skip = (page - 1) * limit;
-
-    // Apply actual skip/limit
-    this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
+    const page = this.queryString.page || 1;
+    const limit = this.queryString.limit || 20;
 
     // Count documents using same filter
     const filterQuery = this.mongooseQuery.getFilter();
