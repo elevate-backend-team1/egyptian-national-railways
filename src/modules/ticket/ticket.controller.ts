@@ -1,9 +1,11 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Req } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { OneWayReservationDto } from './dto';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
+import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
+import { RoundTripReservationDto } from './dto/round-trip-reservation.dto';
 
 @ApiTags('Tickets')
 @ApiBearerAuth()
@@ -29,7 +31,13 @@ export class TicketController {
 
   @Post('one-way')
   @Public()
-  reserveOneWay(@Body() dto: OneWayReservationDto) {
-    return this.ticketsService.reserveOneWay(dto);
+  reserveOneWay(@Body() dto: OneWayReservationDto, @Req() req: AuthRequest) {
+    return this.ticketsService.reserveOneWay(dto, req.user.userId);
+  }
+
+  @Post('round-trip')
+  @Public()
+  reserveRoundTrip(@Body() dto: RoundTripReservationDto, @Req() req: AuthRequest) {
+    return this.ticketsService.reserveRoundTrip(dto, req.user.userId);
   }
 }

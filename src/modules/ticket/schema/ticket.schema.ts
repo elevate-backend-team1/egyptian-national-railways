@@ -2,8 +2,7 @@ import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Counter } from './counter.schema';
 import { ticketStatus } from '../enums/status.enum';
-import { TicketClass } from '../enums/ticket-class.enum';
-
+import { Class } from 'src/modules/train/enums/car-class.enums';
 export type TicketDocument = HydratedDocument<Ticket>;
 
 @Schema({ timestamps: true })
@@ -48,10 +47,10 @@ export class Ticket {
 
   @Prop({
     type: String,
-    enum: TicketClass,
+    enum: Class,
     required: true
   })
-  class: TicketClass;
+  class: Class;
 
   @Prop({
     type: Number,
@@ -84,14 +83,17 @@ export class Ticket {
   })
   status: ticketStatus;
 
+  // @Prop({
+  //   type: {
+  //     basePrice: Number, // (المسافة * سعر كيلو القطار)
+  //     fees: Number, // (تأمين + حجز)
+  //     total: Number // السعر النهائي
+  //   }
+  // })
   @Prop({
-    type: {
-      basePrice: Number, // (المسافة * سعر كيلو القطار)
-      fees: Number, // (تأمين + حجز)
-      total: Number // السعر النهائي
-    }
+    type: Number
   })
-  priceDetails: any;
+  priceDetails: number;
 
   @Prop({
     type: String

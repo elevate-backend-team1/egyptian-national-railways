@@ -5,12 +5,13 @@ import * as QRCode from 'qrcode';
 import { Ticket, TicketDocument } from './schema';
 import { OneWayReservationDto } from './dto';
 import { ticketStatus } from './enums/status.enum';
-import { Schedule, ScheduleDocument } from 'src/trip/schema/schedule.chema';
-import { Route, RouteDocument } from 'src/trip/schema/route.chema';
-import { Train, TrainDocument } from 'src/trip/schema/train.schema';
 import { StationData } from './interface/station.interface';
-import { PriceDetails } from './interface/price.interface';
+// import { PriceDetails } from './interface/price.interface';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { Schedule, ScheduleDocument } from '../schedules/schema/schedule.schema';
+import { Route, RouteDocument } from '../routes/schema/route.schema';
+import { Train, TrainDocument } from '../train/schema/train.schema';
+import { RoundTripReservationDto } from './dto/round-trip-reservation.dto';
 
 @Injectable()
 export class TicketService {
@@ -28,7 +29,7 @@ export class TicketService {
     private readonly trainModel: Model<TrainDocument>
   ) {}
 
-  async createTickets(dto: OneWayReservationDto, stationData: StationData, priceDetails: PriceDetails) {
+  async createTickets(dto: OneWayReservationDto, stationData: StationData, priceDetails: number, userId: string) {
     const session = await this.ticketModel.db.startSession();
     session.startTransaction();
 
@@ -39,7 +40,7 @@ export class TicketService {
         const qrCode = await this.generateQrOrFail(`${dto.scheduleId}-${passenger.carNumber}-${passenger.seatNumber}`);
 
         const ticket = new this.ticketModel({
-          userId: dto.userId,
+          userId: userId,
           scheduleId: dto.scheduleId,
           fromStationId: dto.fromStationId,
           toStationId: dto.toStationId,
@@ -123,12 +124,12 @@ export class TicketService {
     if (!qr) throw new Error('QR generation failed');
     return qr;
   }
-  async reserveOneWay(dto: OneWayReservationDto) {
-    const schedule = await this.scheduleModel.findById(dto.scheduleId).populate('route_id');
-    if (!schedule || !schedule.route_id || schedule.route_id instanceof Types.ObjectId) {
+  async reserveOneWay(dto: OneWayReservationDto, userId: string) {
+    const schedule = await this.scheduleModel.findById(dto.scheduleId).populate('routeId');
+    if (!schedule || !schedule.routeId || schedule.routeId instanceof Types.ObjectId) {
       throw new Error('Route not populated');
     }
-    const route = schedule.route_id as RouteDocument;
+    const route = schedule.routeId as RouteDocument;
     const train = await this.getTrain(route);
 
     const stationData = this.resolveStations(route, dto.fromStationId, dto.toStationId);
@@ -138,30 +139,36 @@ export class TicketService {
     this.validateSeats(dto, train);
     await this.checkSeatCollision(dto);
 
-    return this.createTickets(dto, stationData, priceDetails);
+    return this.createTickets(dto, stationData, priceDetails, userId);
+  }
+
+  async reserveRoundTrip(dto: RoundTripReservationDto, userId: string) {
+    const outboundTickets = await this.reserveOneWay(dto.outbound, userId);
+    const returnTickets = await this.reserveOneWay(dto.return, userId);
+    return { outboundTickets, returnTickets };
   }
 
   private async getTrain(route: RouteDocument) {
-    const routeWithTrain = await this.routeModel.findById(route._id).populate('train_id');
-    if (!routeWithTrain || !routeWithTrain.train_id || routeWithTrain.train_id instanceof Types.ObjectId) {
+    const routeWithTrain = await this.routeModel.findById(route._id).populate('trainId');
+    if (!routeWithTrain || !routeWithTrain.trainId || routeWithTrain.trainId instanceof Types.ObjectId) {
       throw new NotFoundException('Train not found for the route');
     }
 
-    return routeWithTrain.train_id as TrainDocument;
+    return routeWithTrain.trainId as TrainDocument;
   }
 
   private resolveStations(route: RouteDocument, fromId: string, toId: string) {
-    const from = route.station_list.find((s) => s.station_id.toString() === fromId);
-    const to = route.station_list.find((s) => s.station_id.toString() === toId);
+    const from = route.staionLists.find((s) => s.stationId.toString() === fromId);
+    const to = route.staionLists.find((s) => s.stationId.toString() === toId);
 
-    if (!from || !to || from.order >= to.order) {
+    if (!from || !to || from.stopOrder >= to.stopOrder) {
       throw new BadRequestException('Invalid stations');
     }
 
     return {
-      fromOrder: from.order,
-      toOrder: to.order,
-      distanceKm: to.distance_from_start - from.distance_from_start
+      fromOrder: from.stopOrder,
+      toOrder: to.stopOrder,
+      distanceKm: to.distanceFromStart - from.distanceFromStart
     };
   }
 
@@ -169,26 +176,26 @@ export class TicketService {
     const base = distanceKm * train.base_rate_per_km;
     const finalBase = Math.max(base, train.min_fare);
 
-    const fees = train.insurance_fee + train.reservation_fee;
+    // const fees = train.insurance_fee + train.reservation_fee;
 
-    return {
-      basePrice: finalBase,
-      fees,
-      total: finalBase + fees
-    };
+    return finalBase;
+    // return {
+    //   price: finalBase
+    //   total: finalBase + fees
+    // };
   }
 
   private validateSeats(dto: OneWayReservationDto, train: TrainDocument) {
     for (const p of dto.passengers) {
-      const car = train.cars.find((c) => c.car_number === p.carNumber);
+      const car = train.cars.find((c) => c.carNumber === p.carNumber);
 
       if (!car) throw new BadRequestException('Invalid car');
 
       if (car.class !== dto.class) throw new BadRequestException('Wrong class');
 
-      if (p.seatNumber > car.total_seats) throw new BadRequestException('Invalid seat');
+      if (p.seatNumber > car.totalSeats) throw new BadRequestException('Invalid seat');
 
-      if (car.unavailable_seats_numbers?.includes(p.seatNumber)) throw new BadRequestException('Seat unavailable');
+      if (car.unavailableSeats?.includes(p.seatNumber)) throw new BadRequestException('Seat unavailable');
     }
   }
 

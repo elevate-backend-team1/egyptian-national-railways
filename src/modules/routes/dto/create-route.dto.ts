@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMongoId, IsNotEmpty, IsNumber, Matches, Min } from 'class-validator';
-import { IRouteStop } from '../schema/route.schema';
+import { IRouteStop } from '../interface/route-station.interface';
 
 export class CreateRouteDto {
   @ApiProperty({ description: 'ID of the train associated with the route', example: '64b8f0c2e1d3c2a5f4e8b456' })
@@ -26,7 +26,7 @@ export class CreateRouteDto {
   endStationId: string;
 
   @ApiProperty({
-    description: 'Stops Stations ',
+    description: 'all Stations in this route including start and end stations ',
     example: `[{
     "stationId":"64b8f0c2e1d3c2a5f4e8b458",
     "arrivalTime":"10:00",
@@ -36,7 +36,7 @@ export class CreateRouteDto {
     }]`
   })
   @IsNotEmpty()
-  stops: IRouteStop[];
+  staionLists: IRouteStop[];
 
   @ApiProperty({ description: 'Total duration of the route in minutes', example: 180 })
   @IsNotEmpty()

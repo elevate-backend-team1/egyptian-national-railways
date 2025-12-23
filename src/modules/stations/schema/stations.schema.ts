@@ -1,7 +1,8 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CoordinatesDto } from '../dto/create-station.dto';
+import { HydratedDocument } from 'mongoose';
 
-export type StationDocument = Station & Document;
+export type StationDocument = HydratedDocument<Station>;
 
 @Schema({ timestamps: true })
 export class Station {

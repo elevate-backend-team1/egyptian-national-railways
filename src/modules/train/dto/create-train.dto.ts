@@ -12,9 +12,9 @@ import {
   ArrayMinSize
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TrainTypeAr, TrainTypeEN } from '../schema/train.schema';
 import { CarDto } from './car.dto';
 import { Type } from 'class-transformer';
+import { TrainTypeAr, TrainTypeEN } from '../enums/train-type.enum';
 
 export class CreateTrainDto {
   @ApiProperty({

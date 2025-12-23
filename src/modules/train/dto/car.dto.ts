@@ -1,7 +1,7 @@
 import { IsArray, IsNumber, IsEnum, IsNotEmpty, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { Class } from '../schema/train.schema';
+import { Class } from '../enums/car-class.enums';
 
 export class CarDto {
   @ApiProperty({ description: 'Car identification number', example: 101 })

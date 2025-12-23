@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { TicketClass } from '../enums/ticket-class.enum';
+import { Class } from 'src/modules/train/enums/car-class.enums';
 export class PassengerDetailsDto {
   @ApiProperty()
   @IsString()
@@ -40,8 +40,8 @@ export class PassengerWithSeatDto {
 }
 
 export class OneWayReservationDto {
-  @IsMongoId()
-  userId: string;
+  // @IsMongoId()
+  // userId: string;
 
   @IsMongoId()
   scheduleId: string;
@@ -52,8 +52,8 @@ export class OneWayReservationDto {
   @IsMongoId()
   toStationId: string;
 
-  @IsEnum(TicketClass)
-  class: TicketClass;
+  @IsEnum(Class)
+  class: Class;
 
   @IsArray()
   @ValidateNested({ each: true })
