@@ -4,7 +4,7 @@ import { UpdateTrainDto } from './dto/update-train.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Train } from './schema/train.schema';
 import { Model } from 'mongoose';
-import { ApiResponses } from 'src/common/dto/response.dto';
+import { ApiResponses } from '../../common/dto/response.dto';
 
 @Injectable()
 export class TrainService {
