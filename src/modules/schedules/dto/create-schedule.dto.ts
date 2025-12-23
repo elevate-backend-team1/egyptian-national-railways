@@ -6,7 +6,9 @@ import {
   IsNumber,
   IsOptional,
   IsBoolean,
-  Min
+  Min,
+  MinDate,
+  Matches
   //   IsArray,
   //   ValidateNested,
   //   ArrayMinSize
@@ -39,15 +41,25 @@ export class CreateScheduleDto {
   //   @IsString()
   //   trainType: string;
 
-  @ApiProperty({ example: '2024-12-25T00:00:00Z', description: 'Departure date' })
-  @IsNotEmpty()
-  @Type(() => Date)
+  @ApiProperty({
+    description: 'Departure date',
+    example: '2026-12-25',
+    type: Date
+  })
   @IsDate()
+  @Type(() => Date)
+  @MinDate(() => new Date(), { message: 'Trip date must be in the future' })
   date: Date;
 
-  @ApiProperty({ example: '08:00', description: 'Departure time (HH:mm format)' })
-  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Departure time in HH:mm format',
+    example: '14:30'
+  })
   @IsString()
+  @IsNotEmpty()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'Departure time must be in HH:mm format (e.g., 14:30)'
+  })
   departureTime: string;
 
   //   @ApiProperty({ example: '2024-12-25T00:00:00Z', description: 'Arrival date' })
@@ -56,22 +68,32 @@ export class CreateScheduleDto {
   //   @IsDate()
   //   arrivalDate: Date;
 
-  @ApiProperty({ example: '16:30', description: 'Arrival time (HH:mm format)' })
-  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Arrival time in HH:mm format',
+    example: '18:45'
+  })
   @IsString()
+  @IsNotEmpty()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'Arrival time must be in HH:mm format (e.g., 18:45)'
+  })
   arrivalTime: string;
 
-  @ApiProperty({ example: 510, description: 'Journey duration in minutes' })
+  @ApiProperty({ description: 'Journey duration in minutes', example: 510, minimum: 0 })
   @IsNotEmpty()
   @IsNumber()
-  @Min(1)
+  @Min(0, { message: 'Duration must be a positive number' })
   durationMinutes: number;
 
-  @ApiProperty({})
+  @ApiProperty({
+    description: 'Schedule status in english',
+    example: ['on_time', 'delayed', 'cancelled'],
+    default: 'on_time'
+  })
   @IsString()
   status_en: string;
 
-  @ApiProperty({})
+  @ApiProperty({ description: 'Schedule status in arabic', example: ['وصل', 'متأخر', 'ملغى'], default: 'وصل' })
   @IsString()
   status_ar: string;
 

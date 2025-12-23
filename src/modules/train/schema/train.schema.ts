@@ -11,7 +11,6 @@ export type Car = {
   carNumber: number;
   class: Class;
   totalSeats: number;
-  // car_fee: number;
   unavailableSeats: number[]; // Array of seat numbers that are unavailable
 };
 
