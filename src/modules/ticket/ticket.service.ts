@@ -1,100 +1,219 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ApiResponses } from 'src/common/dto/response.dto';
-import { OneWayReservationDto } from './dto';
-
 import { Model, Types } from 'mongoose';
-import { CreateTicketDto } from './dto/create-ticket.dto';
-import { UpdateTicketDto } from './dto/update-ticket.dto';
+import * as QRCode from 'qrcode';
 import { Ticket, TicketDocument } from './schema';
+import { OneWayReservationDto } from './dto';
 import { ticketStatus } from './enums/status.enum';
+import { Schedule, ScheduleDocument } from 'src/trip/schema/schedule.chema';
+import { Route, RouteDocument } from 'src/trip/schema/route.chema';
+import { Train, TrainDocument } from 'src/trip/schema/train.schema';
+import { StationData } from './interface/station.interface';
+import { PriceDetails } from './interface/price.interface';
+import { UpdateTicketDto } from './dto/update-ticket.dto';
 
 @Injectable()
 export class TicketService {
   constructor(
     @InjectModel(Ticket.name)
-    private readonly ticketModel: Model<TicketDocument>
+    private readonly ticketModel: Model<TicketDocument>,
+
+    @InjectModel(Schedule.name)
+    private readonly scheduleModel: Model<ScheduleDocument>,
+
+    @InjectModel(Route.name)
+    private readonly routeModel: Model<RouteDocument>,
+
+    @InjectModel(Train.name)
+    private readonly trainModel: Model<TrainDocument>
   ) {}
 
-  async create(userId: string, createTicketDto: CreateTicketDto): Promise<Ticket> {
-    const ticket = new this.ticketModel({
-      ...createTicketDto,
-      userId: new Types.ObjectId(userId),
-      tripId: new Types.ObjectId(createTicketDto.tripId)
-    });
+  async createTickets(dto: OneWayReservationDto, stationData: StationData, priceDetails: PriceDetails) {
+    const session = await this.ticketModel.db.startSession();
+    session.startTransaction();
 
-    return ticket.save();
+    try {
+      const tickets: TicketDocument[] = [];
+
+      for (const passenger of dto.passengers) {
+        const qrCode = await this.generateQrOrFail(`${dto.scheduleId}-${passenger.carNumber}-${passenger.seatNumber}`);
+
+        const ticket = new this.ticketModel({
+          userId: dto.userId,
+          scheduleId: dto.scheduleId,
+          fromStationId: dto.fromStationId,
+          toStationId: dto.toStationId,
+          fromOrder: stationData.fromOrder,
+          toOrder: stationData.toOrder,
+          seatNumber: passenger.seatNumber,
+          carNumber: passenger.carNumber,
+          class: dto.class,
+          passengerDetails: passenger.passengerDetails,
+          priceDetails,
+          qrCode,
+          status: ticketStatus.BOOKED
+        });
+
+        await ticket.save({ session });
+        tickets.push(ticket);
+      }
+
+      await session.commitTransaction();
+      return tickets;
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      await session.endSession();
+    }
   }
 
-  async update(ticketId: string, updateTicketDto: UpdateTicketDto): Promise<Ticket> {
+  async updateTicket(ticketId: string, dto: UpdateTicketDto): Promise<TicketDocument> {
+    if (!Types.ObjectId.isValid(ticketId)) {
+      throw new BadRequestException('Invalid ticket id');
+    }
+
     const ticket = await this.ticketModel.findById(ticketId);
 
     if (!ticket) {
       throw new NotFoundException('Ticket not found');
     }
 
-    // Business rule
-    if (updateTicketDto.status === ticketStatus.PAID && !ticket.paidTime) {
-      ticket.paidTime = new Date();
+    if (dto.status) {
+      this.validateStatusTransition(ticket.status, dto.status);
+      ticket.status = dto.status;
     }
 
-    Object.assign(ticket, updateTicketDto);
-
-    return ticket.save();
-  }
-
-  // Get list of tickets
-  async listTickets(): Promise<Ticket[]> {
-    const tickets = await this.ticketModel.find();
-
-    if (!tickets || tickets.length === 0) {
-      throw new NotFoundException('No tickets found');
+    if (dto.passengerDetails) {
+      ticket.passengerDetails = dto.passengerDetails;
     }
-    return tickets;
+
+    await ticket.save();
+    return ticket;
   }
 
-  // Delete specific ticket by id
-  async deleteTicket(id: string): Promise<string> {
-    const result = await this.ticketModel.findByIdAndDelete(id);
-    if (!result) {
-      throw new NotFoundException(`Ticket with ID ${id} not found`);
+  async cancelTicket(id: string) {
+    const ticket = await this.ticketModel.findById(id);
+    if (!ticket) {
+      throw new NotFoundException('Ticket not found');
     }
-    return 'Ticket deleted successfully';
+    this.validateStatusTransition(ticket.status, ticketStatus.CANCELLED);
+
+    ticket.status = ticketStatus.CANCELLED;
+    await ticket.save();
+    return ticket;
   }
 
-  /**
-   * Reserve one way ticket
-   */
-  async reserveOneWay(body: OneWayReservationDto): Promise<ApiResponses<Ticket>> {
-    // Check seat availability
-    const seatReserved = await this.ticketModel.findOne({
-      travelDate: new Date(body.travelDate),
-      carNumber: body.carNumber,
-      seatNumber: body.seatNumber,
-      status: { $in: ['booked', 'paid'] }
+  private validateStatusTransition(current: ticketStatus, next: ticketStatus) {
+    const allowedTransitions: Record<ticketStatus, ticketStatus[]> = {
+      [ticketStatus.BOOKED]: [ticketStatus.PAID, ticketStatus.CANCELLED],
+      [ticketStatus.PAID]: [ticketStatus.EXPIRED, ticketStatus.CANCELLED, ticketStatus.REFUNDED],
+      [ticketStatus.EXPIRED]: [],
+      [ticketStatus.CANCELLED]: [],
+      [ticketStatus.REFUNDED]: []
+    };
+
+    if (!allowedTransitions[current].includes(next)) {
+      throw new BadRequestException(`Invalid status transition from ${current} to ${next}`);
+    }
+  }
+
+  private async generateQrOrFail(data: string): Promise<string> {
+    const qr = await QRCode.toDataURL(data);
+    if (!qr) throw new Error('QR generation failed');
+    return qr;
+  }
+  async reserveOneWay(dto: OneWayReservationDto) {
+    const schedule = await this.scheduleModel.findById(dto.scheduleId).populate('route_id');
+    if (!schedule || !schedule.route_id || schedule.route_id instanceof Types.ObjectId) {
+      throw new Error('Route not populated');
+    }
+    const route = schedule.route_id as RouteDocument;
+    const train = await this.getTrain(route);
+
+    const stationData = this.resolveStations(route, dto.fromStationId, dto.toStationId);
+
+    const priceDetails = this.calculatePrice(train, stationData.distanceKm);
+
+    this.validateSeats(dto, train);
+    await this.checkSeatCollision(dto);
+
+    return this.createTickets(dto, stationData, priceDetails);
+  }
+
+  private async getTrain(route: RouteDocument) {
+    const routeWithTrain = await this.routeModel.findById(route._id).populate('train_id');
+    if (!routeWithTrain || !routeWithTrain.train_id || routeWithTrain.train_id instanceof Types.ObjectId) {
+      throw new NotFoundException('Train not found for the route');
+    }
+
+    return routeWithTrain.train_id as TrainDocument;
+  }
+
+  private resolveStations(route: RouteDocument, fromId: string, toId: string) {
+    const from = route.station_list.find((s) => s.station_id.toString() === fromId);
+    const to = route.station_list.find((s) => s.station_id.toString() === toId);
+
+    if (!from || !to || from.order >= to.order) {
+      throw new BadRequestException('Invalid stations');
+    }
+
+    return {
+      fromOrder: from.order,
+      toOrder: to.order,
+      distanceKm: to.distance_from_start - from.distance_from_start
+    };
+  }
+
+  private calculatePrice(train: TrainDocument, distanceKm: number) {
+    const base = distanceKm * train.base_rate_per_km;
+    const finalBase = Math.max(base, train.min_fare);
+
+    const fees = train.insurance_fee + train.reservation_fee;
+
+    return {
+      basePrice: finalBase,
+      fees,
+      total: finalBase + fees
+    };
+  }
+
+  private validateSeats(dto: OneWayReservationDto, train: TrainDocument) {
+    for (const p of dto.passengers) {
+      const car = train.cars.find((c) => c.car_number === p.carNumber);
+
+      if (!car) throw new BadRequestException('Invalid car');
+
+      if (car.class !== dto.class) throw new BadRequestException('Wrong class');
+
+      if (p.seatNumber > car.total_seats) throw new BadRequestException('Invalid seat');
+
+      if (car.unavailable_seats_numbers?.includes(p.seatNumber)) throw new BadRequestException('Seat unavailable');
+    }
+  }
+
+  private async checkSeatCollision(dto: OneWayReservationDto) {
+    const seatSet = new Set();
+    for (const p of dto.passengers) {
+      const key = `${p.carNumber}-${p.seatNumber}`;
+      if (seatSet.has(key)) {
+        throw new BadRequestException(`Duplicate seat in request: Car ${p.carNumber} Seat ${p.seatNumber}`);
+      }
+      seatSet.add(key);
+    }
+    const seats = dto.passengers.map((p) => ({
+      carNumber: p.carNumber,
+      seatNumber: p.seatNumber
+    }));
+
+    const reserved = await this.ticketModel.find({
+      scheduleId: dto.scheduleId,
+      status: { $in: [ticketStatus.BOOKED, ticketStatus.PAID] },
+      $or: seats
     });
 
-    if (seatReserved) {
-      throw new BadRequestException('Seat already reserved');
+    if (reserved.length) {
+      throw new BadRequestException('Seats taken');
     }
-
-    // Create document
-    const ticket = await this.ticketModel.create({
-      userId: body.userId,
-
-      fromStation: body.fromStation,
-      toStation: body.toStation,
-      travelDate: body.travelDate,
-
-      class: body.class,
-      carNumber: body.carNumber,
-      seatNumber: body.seatNumber,
-
-      price: body.price,
-      status: 'booked'
-    });
-
-    // Return
-    return ApiResponses.success('Ticket reserved successfully', ticket);
   }
 }

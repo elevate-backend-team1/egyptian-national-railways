@@ -1,31 +1,63 @@
-import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
-
-export class OneWayReservationDto {
+import {
+  IsArray,
+  IsMongoId,
+  ValidateNested,
+  IsEnum,
+  IsString,
+  IsInt,
+  Min,
+  ArrayMinSize,
+  Matches
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { TicketClass } from '../enums/ticket-class.enum';
+export class PassengerDetailsDto {
+  @ApiProperty()
   @IsString()
-  userId: string;
+  fullName: string;
 
+  @ApiProperty()
   @IsString()
-  @IsOptional() // TODO: make it required when create trip collection
-  tripId?: string;
-
-  @IsString()
-  fromStation: string;
-
-  @IsString()
-  toStation: string;
-
-  @IsDateString()
-  travelDate: Date;
-
-  @IsString()
-  class: 'first' | 'second' | 'third';
-
-  @IsNumber()
-  seatNumber: number;
-
-  @IsNumber()
+  @Matches(/^\d{14}$/)
+  nationalId: string;
+}
+export class PassengerWithSeatDto {
+  @ApiProperty()
+  @IsInt()
+  @Min(1)
   carNumber: number;
 
-  @IsNumber()
-  price: number;
+  @ApiProperty()
+  @IsInt()
+  @Min(1)
+  seatNumber: number;
+
+  @ApiProperty({ type: PassengerDetailsDto })
+  @ValidateNested()
+  @Type(() => PassengerDetailsDto)
+  passengerDetails: PassengerDetailsDto;
+}
+
+export class OneWayReservationDto {
+  @IsMongoId()
+  userId: string;
+
+  @IsMongoId()
+  scheduleId: string;
+
+  @IsMongoId()
+  fromStationId: string;
+
+  @IsMongoId()
+  toStationId: string;
+
+  @IsEnum(TicketClass)
+  class: TicketClass;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @ArrayMinSize(1)
+  @Type(() => PassengerWithSeatDto)
+  passengers: PassengerWithSeatDto[];
 }
