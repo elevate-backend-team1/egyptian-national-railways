@@ -12,6 +12,7 @@ import { SchedulesModule } from './modules/schedules/schedules.module';
 import { StationsModule } from './modules/stations/stations.module';
 import { RoutesModule } from './modules/routes/routes.module';
 import { PassengersModule } from './modules/passenger/passenger.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { PassengersModule } from './modules/passenger/passenger.module';
     StationsModule,
     RoutesModule,
     TicketModule,
-    PassengersModule
+    PassengersModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService]
