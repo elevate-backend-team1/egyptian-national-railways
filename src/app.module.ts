@@ -8,6 +8,7 @@ import { LocalizationModule } from './localization/localization.module';
 import { TicketModule } from './modules/ticket/ticket.module';
 import { TripModule } from './trip/trip.module';
 import { PassengersModule } from './modules/passenger/passenger.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { PassengersModule } from './modules/passenger/passenger.module';
     TicketModule,
     TripModule,
     TicketModule,
-    PassengersModule
+    PassengersModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService]
