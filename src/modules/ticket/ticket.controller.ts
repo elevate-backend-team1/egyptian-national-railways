@@ -19,8 +19,8 @@ export class TicketController {
   @ApiResponse({ status: 200, description: 'Ticket updated successfully' })
   @ApiResponse({ status: 404, description: 'Ticket not found' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  updateTicket(@Param('id') id: string, @Body() dto: UpdateTicketDto) {
-    return this.ticketsService.updateTicket(id, dto);
+  updateTicket(@Param('id') id: string, @Body() dto: UpdateTicketDto, @Req() req: AuthRequest) {
+    return this.ticketsService.updateTicket(id, dto, req.user.userId);
   }
 
   // @Get()

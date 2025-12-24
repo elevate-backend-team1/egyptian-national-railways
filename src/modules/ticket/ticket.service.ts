@@ -69,7 +69,7 @@ export class TicketService {
     }
   }
 
-  async updateTicket(ticketId: string, dto: UpdateTicketDto): Promise<TicketDocument> {
+  async updateTicket(ticketId: string, dto: UpdateTicketDto, userId: string): Promise<TicketDocument> {
     if (!Types.ObjectId.isValid(ticketId)) {
       throw new BadRequestException('Invalid ticket id');
     }
@@ -79,12 +79,9 @@ export class TicketService {
     if (!ticket) {
       throw new NotFoundException('Ticket not found');
     }
-
-    if (dto.status) {
-      this.validateStatusTransition(ticket.status, dto.status);
-      ticket.status = dto.status;
+    if (ticket.userId.toString() !== userId) {
+      throw new BadRequestException('You are not authorized to update this ticket');
     }
-
     if (dto.passengerDetails) {
       ticket.passengerDetails = dto.passengerDetails;
     }
