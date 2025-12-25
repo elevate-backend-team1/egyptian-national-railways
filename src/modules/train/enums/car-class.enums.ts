@@ -1,5 +1,7 @@
 export enum Class {
   FIRST = 'first',
   SECOND = 'second',
-  THIRD = 'third'
+  THIRD = 'third',
+  VIP = 'vip',
+  SLEEPER = 'sleeper'
 }

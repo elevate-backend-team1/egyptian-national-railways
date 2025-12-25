@@ -24,7 +24,7 @@ export class PassengerDetailsDto {
   @ApiProperty({
     description: 'National ID of the passenger (14 digits)',
     example: '29001011234567',
-    pattern: '^\\d{14}$'
+    pattern: String.raw`^\d{14}$`
   })
   @IsString()
   @Matches(/^\d{14}$/)

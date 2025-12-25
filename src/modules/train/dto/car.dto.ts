@@ -10,10 +10,10 @@ export class CarDto {
   @Min(1)
   carNumber: number;
 
-  @ApiProperty({ description: 'Total number of seats', example: 'economy', enum: Class })
+  @ApiProperty({ description: 'Total number of seats', example: 'first', enum: Class })
   @IsNotEmpty()
   @IsEnum(Class)
-  class: string;
+  class: Class;
 
   @ApiProperty({ example: 50 })
   @IsNotEmpty()

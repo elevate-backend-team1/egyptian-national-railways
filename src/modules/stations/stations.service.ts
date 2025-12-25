@@ -8,11 +8,11 @@ import { Station } from './schema/stations.schema';
 
 @Injectable()
 export class StationsService {
-  constructor(@InjectModel(Station.name) private stationModel: Model<Station>) {}
+  constructor(@InjectModel(Station.name) private readonly stationModel: Model<Station>) {}
 
   async createStation(createStationDto: CreateStationDto): Promise<Station> {
     // check if station exist
-    const existingStation = await this.stationModel.find({ code: createStationDto.code });
+    const existingStation = await this.stationModel.findOne({ code: createStationDto.code });
     if (existingStation) {
       throw new BadRequestException('Station with this code already exist');
     }
