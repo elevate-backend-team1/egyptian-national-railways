@@ -1,4 +1,3 @@
-
 import { IsArray, IsNumber, IsEnum, IsOptional, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';

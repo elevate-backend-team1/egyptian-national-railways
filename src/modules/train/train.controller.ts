@@ -85,12 +85,8 @@ export class TrainController {
    */
   @Patch(':id/cars/:carNumber')
   @Public()
-  updateCar(
-    @Param('id') id: string,
-    @Param('carNumber') carNumber: string,
-    @Body() updateCarDto: UpdateCarDto
-  ) {
-    return this.trainService.updateCar(id, parseInt(carNumber), updateCarDto);
+  updateCar(@Param('id') id: string, @Param('carNumber') carNumber: string, @Body() updateCarDto: UpdateCarDto) {
+    return this.trainService.updateCar(id, Number.parseInt(carNumber), updateCarDto);
   }
 
   /**
@@ -102,6 +98,6 @@ export class TrainController {
   @Delete(':id/cars/:carNumber')
   @Public()
   removeCar(@Param('id') id: string, @Param('carNumber') carNumber: string) {
-    return this.trainService.removeCar(id, parseInt(carNumber));
+    return this.trainService.removeCar(id, Number.parseInt(carNumber));
   }
 }
