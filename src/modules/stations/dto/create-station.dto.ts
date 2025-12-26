@@ -43,7 +43,7 @@ export class CreateStationDto {
   })
   code: string;
 
-  @ApiProperty({ description: 'Distance from main zero in kilometers', example: 5 })
+  @ApiProperty({ description: 'Distance from main zero in kilometers', example: 0 })
   @IsNotEmpty()
   @IsNumber()
   @Min(0, { message: 'Distance must be positive number' })

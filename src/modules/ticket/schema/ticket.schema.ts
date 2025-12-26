@@ -1,14 +1,14 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { ticketStatus } from '../enums/status.enum';
 import { Counter } from './counter.schema';
-
+import { ticketStatus } from '../enums/status.enum';
+import { Class } from 'src/modules/train/enums/car-class.enums';
 export type TicketDocument = HydratedDocument<Ticket>;
 
 @Schema({ timestamps: true })
 export class Ticket {
   @Prop({
-    // required: true,
+    required: true,
     unique: true
   })
   ticketNumber: string;
@@ -21,11 +21,23 @@ export class Ticket {
   userId: Types.ObjectId;
 
   @Prop({
-    type: Types.ObjectId,
-    ref: 'Trip'
-    // required: true
+    type: {
+      fullName: String,
+      nationalId: String
+    },
+    required: true
   })
-  tripId: Types.ObjectId;
+  passengerDetails: any;
+
+  // @Prop({
+  //   type: Types.ObjectId,
+  //   ref: 'Trip'
+  //   // required: true
+  // })
+  // tripId: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Schedule', required: true })
+  scheduleId: Types.ObjectId;
 
   @Prop({
     type: Number,
@@ -35,10 +47,10 @@ export class Ticket {
 
   @Prop({
     type: String,
-    enum: ['first', 'second', 'third'],
+    enum: Class,
     required: true
   })
-  class: string;
+  class: Class;
 
   @Prop({
     type: Number,
@@ -46,29 +58,23 @@ export class Ticket {
   })
   carNumber: number;
 
-  @Prop({
-    type: String,
-    required: true
-  })
-  fromStation: string;
+  @Prop({ type: Types.ObjectId, ref: 'Station', required: true })
+  fromStationId: Types.ObjectId;
 
-  @Prop({
-    type: String,
-    required: true
-  })
-  toStation: string;
+  @Prop({ type: Types.ObjectId, ref: 'Station', required: true })
+  toStationId: Types.ObjectId;
 
-  @Prop({
-    type: Date,
-    required: true
-  })
-  travelDate: Date;
+  // @Prop({
+  //   type: Date,
+  //   required: true
+  // })
+  // travelDate: Date;
 
-  @Prop({
-    type: Number,
-    required: true
-  })
-  price: number;
+  @Prop({ required: true })
+  fromOrder: number;
+
+  @Prop({ required: true })
+  toOrder: number;
 
   @Prop({
     type: String,
@@ -76,6 +82,18 @@ export class Ticket {
     default: ticketStatus.BOOKED
   })
   status: ticketStatus;
+
+  // @Prop({
+  //   type: {
+  //     basePrice: Number, // (المسافة * سعر كيلو القطار)
+  //     fees: Number, // (تأمين + حجز)
+  //     total: Number // السعر النهائي
+  //   }
+  // })
+  @Prop({
+    type: Number
+  })
+  priceDetails: number;
 
   @Prop({
     type: String
@@ -102,6 +120,7 @@ export class Ticket {
 
 const TicketSchema = SchemaFactory.createForClass(Ticket);
 export const TicketModel = MongooseModule.forFeature([{ name: Ticket.name, schema: TicketSchema }]);
+TicketSchema.index({ scheduleId: 1, carNumber: 1, seatNumber: 1 }, { unique: true });
 
 /**
  * Auto Generate Cancel Date

@@ -1,13 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Request } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Req } from '@nestjs/common';
 import { TicketService } from './ticket.service';
-import { Ticket } from './schema';
 import { Public } from 'src/common/decorators/public.decorator';
-import { ApiResponses } from 'src/common/dto/response.dto';
 import { OneWayReservationDto } from './dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-import { CreateTicketDto } from './dto/create-ticket.dto';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
+import { RoundTripReservationDto } from './dto/round-trip-reservation.dto';
 
 @ApiTags('Tickets')
 @ApiBearerAuth()
@@ -15,60 +13,42 @@ import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
 export class TicketController {
   constructor(private readonly ticketsService: TicketService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new ticket' })
-  @ApiResponse({ status: 201, description: 'Ticket created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiBody({ type: CreateTicketDto })
-  create(@Request() req: AuthRequest, @Body() dto: CreateTicketDto) {
-    const userId = req.user.userId;
-    return this.ticketsService.create(userId, dto);
-  }
-
   @Patch(':id')
   @ApiOperation({ summary: 'Update a ticket' })
-  @ApiParam({ name: 'id', description: 'Ticket ID', example: '507f1f77bcf86cd799439011' })
+  @ApiParam({ name: 'id', description: 'The ID of the ticket to update' })
   @ApiResponse({ status: 200, description: 'Ticket updated successfully' })
   @ApiResponse({ status: 404, description: 'Ticket not found' })
-  @ApiBody({ type: UpdateTicketDto })
-  update(@Param('id') id: string, @Body() dto: UpdateTicketDto) {
-    return this.ticketsService.update(id, dto);
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  updateTicket(@Param('id') id: string, @Body() dto: UpdateTicketDto, @Req() req: AuthRequest) {
+    return this.ticketsService.updateTicket(id, dto, req.user.userId);
   }
 
-  /**
-   * GET/tickets
-   * @Returns list of tickets
-   */
-  @Get()
+  // @Get()
+  // @Public()
+  // findAll() {
+  //   return this.ticketsService.listTickets();
+  // }
+
+  // @Delete(':id')
+  // delete(@Param('id') id: string) {
+  //   return this.ticketsService.deleteTicket(id);
+  // }
+
+  @Post('one-way')
   @Public()
-  @ApiOperation({ summary: 'Get all tickets' })
-  @ApiResponse({ status: 200, description: 'List of all tickets', type: [Ticket] })
-  async findAllTickets(): Promise<Ticket[]> {
-    return await this.ticketsService.listTickets();
+  @ApiOperation({ summary: 'Reserve a one-way ticket' })
+  @ApiResponse({ status: 201, description: 'Ticket reserved successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  reserveOneWay(@Body() dto: OneWayReservationDto, @Req() req: AuthRequest) {
+    return this.ticketsService.reserveOneWay(dto, req.user.userId);
   }
 
-  /**
-   * DELETE/tickets/:id
-   * @Returns no content
-   */
-  @Delete(':id')
+  @Post('round-trip')
   @Public()
-  @ApiOperation({ summary: 'Delete a ticket' })
-  @ApiParam({ name: 'id', description: 'Ticket ID', example: '507f1f77bcf86cd799439011' })
-  @ApiResponse({ status: 200, description: 'Ticket deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Ticket not found' })
-  async deleteTicket(@Param('id') id: string): Promise<string> {
-    return await this.ticketsService.deleteTicket(id);
-  }
-
-  /**
-   * @api {post} /tickets/onWayReserve Reserve one way ticket
-   * @returns {Ticket}
-   */
-  @Post('onWayReserve')
-  @Public()
-  reserveOneWay(@Body() body: OneWayReservationDto): Promise<ApiResponses<Ticket>> {
-    return this.ticketsService.reserveOneWay(body);
+  @ApiOperation({ summary: 'Reserve a round-trip ticket' })
+  @ApiResponse({ status: 201, description: 'Tickets reserved successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  reserveRoundTrip(@Body() dto: RoundTripReservationDto, @Req() req: AuthRequest) {
+    return this.ticketsService.reserveRoundTrip(dto, req.user.userId);
   }
 }

@@ -1,15 +1,8 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+import { IRouteStop } from '../interface/route-station.interface';
 
-export interface IRouteStop {
-  stationId: Types.ObjectId;
-  arrivalTime: string;
-  departureTime: string;
-  stopOrder: number;
-  distanceFromStart: number;
-}
-
-export type RouteDocument = Route & Document;
+export type RouteDocument = HydratedDocument<Route>;
 
 @Schema({ timestamps: true })
 export class Route {
@@ -26,7 +19,7 @@ export class Route {
   endStationId: Types.ObjectId;
 
   @Prop({ required: true })
-  stops: IRouteStop[];
+  staionLists: IRouteStop[];
 
   @Prop({ required: true })
   totalDuration: number; // Total duration of the route in minutes
