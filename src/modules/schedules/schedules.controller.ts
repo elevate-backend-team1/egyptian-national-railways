@@ -3,7 +3,6 @@ import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { Public } from 'src/common/decorators/public.decorator';
-import type { QueryString } from 'src/common/interfaces/queryString.interface';
 import { ScheduleQueryDto } from './dto/schedule-query-dto';
 
 @Controller('schedules')

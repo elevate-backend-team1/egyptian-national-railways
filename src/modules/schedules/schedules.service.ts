@@ -9,7 +9,6 @@ import { ApiResponses } from 'src/common/dto/response.dto';
 import { Route } from '../routes/schema/route.schema';
 import { ApiFeatures } from 'src/common/utils/api-features';
 import { PaginatedResponse } from 'src/common/interfaces/pagination.interface';
-import { QueryString } from 'src/common/interfaces/queryString.interface';
 import { ScheduleQueryDto } from './dto/schedule-query-dto';
 
 @Injectable()
