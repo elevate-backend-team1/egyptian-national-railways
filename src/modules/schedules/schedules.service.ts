@@ -2,15 +2,15 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Schedule, ScheduleDocument } from './schema/schedule.schema';
+import { Schedule } from './schema/schedule.schema';
 import { Model, Types } from 'mongoose';
 import { Train } from '../train/schema/train.schema';
 import { ApiResponses } from 'src/common/dto/response.dto';
 import { Route } from '../routes/schema/route.schema';
 import { ApiFeatures } from 'src/common/utils/api-features';
 import { PaginatedResponse } from 'src/common/interfaces/pagination.interface';
-import { QueryDto } from 'src/common/dto/query.dto';
 import { QueryString } from 'src/common/interfaces/queryString.interface';
+import { ScheduleQueryDto } from './dto/schedule-query-dto';
 
 @Injectable()
 export class SchedulesService {
@@ -45,8 +45,8 @@ export class SchedulesService {
     return newSchedule;
   }
 
-  async findAll(query: QueryString): Promise<PaginatedResponse<ScheduleDocument>> {
-    const apiFeatures = new ApiFeatures<ScheduleDocument>(this.scheduleModel, query, {
+  async findAll(query: ScheduleQueryDto): Promise<PaginatedResponse<Schedule>> {
+    const apiFeatures = new ApiFeatures(this.scheduleModel, query, {
       searchFields: ['departureTime', 'arrivalTime', 'status_en', 'status_ar'],
       defaultSort: 'date departureTime',
       defaultLimit: 10,

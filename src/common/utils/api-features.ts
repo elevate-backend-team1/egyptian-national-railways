@@ -1,23 +1,15 @@
-import { Query, Model, Document } from 'mongoose';
+import { Query, Model, FilterQuery } from 'mongoose';
+import { BaseQueryDto } from '../dto/baseQuery.dto';
 import { PaginatedResponse, PaginationMeta } from '../interfaces/pagination.interface';
-import { QueryString } from '../interfaces/queryString.interface';
-
-export interface ApiFeaturesConfig {
-  searchFields?: string[];
-  defaultSort?: string;
-  defaultLimit?: number;
-  maxLimit?: number;
-  populateFields?: string | string[] | { path: string; select?: string }[];
-  dateField?: string;
-}
+import { ApiFeaturesConfig } from '../interfaces/apiFeaturesConfig.interface';
 
 export class ApiFeatures<T> {
-  private query: Query<any[], any>;
-  private queryString: QueryString;
+  private query: Query<T[], T>;
+  private queryString: BaseQueryDto;
   private config: Required<ApiFeaturesConfig>;
-  private model: Model<any>;
+  private model: Model<T>;
 
-  constructor(model: Model<any>, queryString: QueryString = {}, config: ApiFeaturesConfig = {}) {
+  constructor(model: Model<T>, queryString: BaseQueryDto = {}, config: ApiFeaturesConfig = {}) {
     this.model = model;
     this.query = model.find();
     this.queryString = queryString;
@@ -41,8 +33,8 @@ export class ApiFeatures<T> {
 
     // Handle date range filtering (fromDate, toDate)
     if (queryObj.fromDate || queryObj.toDate) {
-      const dateField = this.config.dateField || 'date';
-      const dateQuery: any = {};
+      const dateField = this.config.dateField;
+      const dateQuery: Record<string, Date> = {};
 
       if (queryObj.fromDate) {
         dateQuery.$gte = queryObj.fromDate;
@@ -63,7 +55,7 @@ export class ApiFeatures<T> {
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in|nin|ne|eq)\b/g, (match) => `${match}`);
 
-    const parsedQuery = JSON.parse(queryStr);
+    const parsedQuery = JSON.parse(queryStr) as FilterQuery<T>;
     this.query = this.query.find(parsedQuery);
 
     return this;
@@ -111,9 +103,9 @@ export class ApiFeatures<T> {
       const regex = new RegExp(keyword.trim(), 'i');
       const orConditions = this.config.searchFields.map((field) => ({
         [field]: regex
-      }));
+      })) as FilterQuery<T>[];
 
-      this.query = this.query.find({ $or: orConditions } as any);
+      this.query = this.query.find({ $or: orConditions } as FilterQuery<T>);
     }
 
     return this;
@@ -140,18 +132,18 @@ export class ApiFeatures<T> {
    * Populate specified fields
    */
   populate(): this {
-    if (this.config.populateFields.length > 0) {
-      if (Array.isArray(this.config.populateFields)) {
-        this.config.populateFields.forEach((field) => {
-          if (typeof field === 'string') {
-            this.query = this.query.populate(field);
-          } else {
-            this.query = this.query.populate(field);
-          }
-        });
-      } else {
-        this.query = this.query.populate(this.config.populateFields as string);
-      }
+    const populateFields = this.config.populateFields;
+
+    if (Array.isArray(populateFields) && populateFields.length > 0) {
+      populateFields.forEach((field) => {
+        if (typeof field === 'string') {
+          this.query = this.query.populate(field);
+        } else {
+          this.query = this.query.populate(field);
+        }
+      });
+    } else if (typeof populateFields === 'string' && populateFields.length > 0) {
+      this.query = this.query.populate(populateFields);
     }
 
     return this;
@@ -188,7 +180,7 @@ export class ApiFeatures<T> {
 
     return {
       meta,
-      data: data as T[]
+      data
     };
   }
 
@@ -196,14 +188,13 @@ export class ApiFeatures<T> {
    * Execute query without pagination metadata
    */
   async executeWithoutMeta(): Promise<T[]> {
-    const data = await this.query.exec();
-    return data as T[];
+    return this.query.exec();
   }
 
   /**
    * Get the raw mongoose query (for advanced customization)
    */
-  getQuery(): Query<any[], any> {
+  getQuery(): Query<T[], T> {
     return this.query;
   }
 
