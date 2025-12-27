@@ -10,7 +10,7 @@ export class Schedule {
   trainId: Types.ObjectId;
 
   @Prop({ required: true })
-  date: string; // YYYY-MM-DD
+  date: Date; // YYYY-MM-DD
 
   @Prop({ required: true })
   departureTime: string; // HH:mm

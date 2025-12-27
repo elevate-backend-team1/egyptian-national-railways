@@ -8,38 +8,21 @@ import {
   IsBoolean,
   Min,
   MinDate,
-  Matches
-  //   IsArray,
-  //   ValidateNested,
-  //   ArrayMinSize
+  Matches,
+  IsMongoId
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateScheduleDto {
   @ApiProperty({ example: '507f1f77bcf86cd799439011', description: 'Route MongoDB ObjectId' })
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   routeId: string;
 
   @ApiProperty({ example: '507f1f77bcf86cd799439012', description: 'Train MongoDB ObjectId' })
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   trainId: string;
-
-  //   @ApiProperty({ example: 'EX-1234', description: 'Train number' })
-  //   @IsNotEmpty()
-  //   @IsString()
-  //   trainNumber: string;
-
-  //   @ApiProperty({ example: 'Cairo Express', description: 'Train name' })
-  //   @IsNotEmpty()
-  //   @IsString()
-  //   trainName: string;
-
-  //   @ApiProperty({ example: 'express', description: 'Type of train' })
-  //   @IsNotEmpty()
-  //   @IsString()
-  //   trainType: string;
 
   @ApiProperty({
     description: 'Departure date',
@@ -48,7 +31,7 @@ export class CreateScheduleDto {
   })
   @IsDate()
   @Type(() => Date)
-  @MinDate(() => new Date(), { message: 'Trip date must be in the future' })
+  @MinDate(() => new Date(), { message: 'Schedule date must be in the future' })
   date: Date;
 
   @ApiProperty({
@@ -61,12 +44,6 @@ export class CreateScheduleDto {
     message: 'Departure time must be in HH:mm format (e.g., 14:30)'
   })
   departureTime: string;
-
-  //   @ApiProperty({ example: '2024-12-25T00:00:00Z', description: 'Arrival date' })
-  //   @IsNotEmpty()
-  //   @Type(() => Date)
-  //   @IsDate()
-  //   arrivalDate: Date;
 
   @ApiProperty({
     description: 'Arrival time in HH:mm format',
@@ -101,35 +78,4 @@ export class CreateScheduleDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-
-  //   @ApiProperty({ type: AvailableSeatsDto, description: 'Available seats by class' })
-  //   @IsNotEmpty()
-  //   @ValidateNested()
-  //   @Type(() => AvailableSeatsDto)
-  //   availableSeats: AvailableSeatsDto;
-
-  //   @ApiProperty({ type: FarePricingDto, description: 'Fare pricing by class' })
-  //   @IsNotEmpty()
-  //   @ValidateNested()
-  //   @Type(() => FarePricingDto)
-  //   farePricing: FarePricingDto;
-
-  //   @ApiProperty({ type: [ScheduleStopDto], description: 'List of stops in schedule' })
-  //   @IsNotEmpty()
-  //   @IsArray()
-  //   @ArrayMinSize(2)
-  //   @ValidateNested({ each: true })
-  //   @Type(() => ScheduleStopDto)
-  //   stops: ScheduleStopDto[];
-
-  //   @ApiPropertyOptional({ example: ['WiFi', 'AC', 'Meals'], description: 'Available amenities' })
-  //   @IsOptional()
-  //   @IsArray()
-  //   @IsString({ each: true })
-  //   amenities?: string[];
-
-  //   @ApiPropertyOptional({ example: 'Special holiday service', description: 'Additional remarks' })
-  //   @IsOptional()
-  //   @IsString()
-  //   remarks?: string;
 }
