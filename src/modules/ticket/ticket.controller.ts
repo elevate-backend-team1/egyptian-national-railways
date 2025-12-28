@@ -71,4 +71,15 @@ export class TicketController {
   reserveOneWay(@Body() body: OneWayReservationDto): Promise<ApiResponses<Ticket>> {
     return this.ticketsService.reserveOneWay(body);
   }
+
+  /**
+   * GET/tickets/:status
+   * @param :booked |:cancelled
+   * @returns [booked tickets]
+   */
+  @Get(':status')
+  @Public()
+  async gitBookings(@Param('status') status: string) {
+    return this.ticketsService.getTicketsByStatus(status);
+  }
 }
