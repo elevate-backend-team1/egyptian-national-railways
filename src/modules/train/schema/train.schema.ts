@@ -1,34 +1,9 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
+import { TrainTypeAr, TrainTypeEN } from '../enums/train-type.enum';
+import { Car } from '../type/train-car.type';
 
-export enum Class {
-  FIRST = 'first',
-  SECOND = 'second',
-  THIRD = 'third'
-}
-
-export type Car = {
-  carNumber: number;
-  class: Class;
-  totalSeats: number;
-  unavailableSeats: number[]; // Array of seat numbers that are unavailable
-};
-
-export enum TrainTypeEN {
-  REGULAR = 'regular',
-  VIP = 'vip',
-  EXPRESS = 'express',
-  SLEEPER = 'sleeper'
-}
-
-export enum TrainTypeAr {
-  REGULAR = 'عادي',
-  VIP = 'مميز',
-  EXPRESS = 'سريع',
-  SLEEPER = 'نوم'
-}
-
-export type TrainDocument = Train & Document;
+export type TrainDocument = HydratedDocument<Train>;
 @Schema({ timestamps: true })
 export class Train {
   @Prop({ required: true, unique: true })

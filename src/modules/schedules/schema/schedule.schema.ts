@@ -1,5 +1,5 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Schedule {
@@ -31,6 +31,6 @@ export class Schedule {
   isActive: boolean;
 }
 
-export type ScheduleDocument = Schedule & Document;
+export type ScheduleDocument = HydratedDocument<Schedule>;
 const ScheduleSchema = SchemaFactory.createForClass(Schedule);
 export const ScheduleModel = MongooseModule.forFeature([{ name: Schedule.name, schema: ScheduleSchema }]);

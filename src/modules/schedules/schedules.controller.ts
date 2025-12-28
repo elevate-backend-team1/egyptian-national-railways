@@ -2,8 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { SearchTripsDto } from './dto/search-trips.dto';
+import { TripResultDto } from './dto/trip-result.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
+@ApiTags('Schedules')
 @Controller('schedules')
 export class SchedulesController {
   constructor(private readonly schedulesService: SchedulesService) {}
@@ -36,5 +40,14 @@ export class SchedulesController {
   @Public()
   async remove(@Param('id') id: string) {
     return this.schedulesService.removeSchedule(id);
+  }
+
+  @Post('search')
+  @Public()
+  @ApiOperation({ summary: 'Search for available trips' })
+  @ApiResponse({ status: 200, description: 'List of available trips', type: [TripResultDto] })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async searchTrips(@Body() searchDto: SearchTripsDto): Promise<TripResultDto[]> {
+    return this.schedulesService.searchTrips(searchDto);
   }
 }

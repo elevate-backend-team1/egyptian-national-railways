@@ -1,30 +1,15 @@
-import { IsOptional, IsEnum, IsNumber, IsDate } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { ticketStatus } from '../enums/status.enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, ValidateNested } from 'class-validator';
+import { PassengerDetailsDto } from './oneWayReservation.dto';
+import { Type } from 'class-transformer';
 
 export class UpdateTicketDto {
-  @ApiPropertyOptional({ enum: ticketStatus, description: 'Ticket status' })
+  @ApiPropertyOptional({
+    description: 'Updated passenger details',
+    type: PassengerDetailsDto
+  })
   @IsOptional()
-  @IsEnum(ticketStatus)
-  status?: ticketStatus;
-
-  @ApiPropertyOptional({ description: 'Payment timestamp', example: '2023-12-25T10:30:00Z' })
-  @IsOptional()
-  @IsDate()
-  @Transform(({ value }: { value: string | number }) => new Date(value))
-  paidTime?: Date;
-
-  @ApiPropertyOptional({ description: 'Ticket price', example: 150 })
-  @IsOptional()
-  @IsNumber()
-  price?: number;
-
-  @ApiPropertyOptional({ description: 'Departure station', example: 'Cairo' })
-  @IsOptional()
-  fromStation?: string;
-
-  @ApiPropertyOptional({ description: 'Arrival station', example: 'Alexandria' })
-  @IsOptional()
-  toStation?: string;
+  @ValidateNested()
+  @Type(() => PassengerDetailsDto)
+  passengerDetails: PassengerDetailsDto;
 }
