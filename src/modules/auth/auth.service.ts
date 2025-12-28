@@ -16,11 +16,15 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiResponses } from 'src/common/dto/response.dto';
 import { handleServiceError } from 'src/common/utils/errorHandler';
+import { randomUUID } from 'crypto';
+import { TokenBlacklistService } from './token-blacklist.service';
+import { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
 
 export interface TokenPayload {
   sub: string;
   email: string;
   role: string;
+  jti: string;
 }
 
 @Injectable()
@@ -31,7 +35,8 @@ export class AuthService {
     private userModel: Model<UserDocument>,
     @InjectModel(Otp.name)
     private otpModel: Model<OtpDocument>,
-    private mailService: MailService
+    private mailService: MailService,
+    private tokenBlacklistService: TokenBlacklistService
   ) {}
 
   /**
@@ -173,7 +178,8 @@ export class AuthService {
     const accessToken = this.generateAccessToken({
       sub: user._id.toString(),
       email: user.email,
-      role: user.role
+      role: user.role,
+      jti: randomUUID()
     });
 
     return {
@@ -250,5 +256,31 @@ export class AuthService {
     }
 
     return ApiResponses.success('Password has been reset successfully', null);
+  }
+
+  /**
+   * Logout service
+   */
+  async logout(req: AuthRequest): Promise<ApiResponses<null>> {
+    // extract token from request and check if exist
+    // const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+
+    // if (!token) {
+    //   throw new UnauthorizedException('No token provided');
+    // }
+
+    // const payload = this.jwtService.decode(token) as JwtPayload;
+
+    // if (!payload?.jti || !payload.exp) {
+    //   throw new UnauthorizedException('Invalid token');
+    // }
+
+    // get token data from user obj in req
+    const { jti, exp } = req.user;
+
+    // blacklist the token & save in db
+    await this.tokenBlacklistService.blacklist(jti, exp);
+
+    return ApiResponses.success('Logged out successfully', null);
   }
 }
