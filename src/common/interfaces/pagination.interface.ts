@@ -1,4 +1,4 @@
-export interface PaginationMetadata {
+export interface PaginationMeta {
   totalItems: number;
   itemsPerPage: number;
   currentPage: number;
@@ -10,6 +10,6 @@ export interface PaginationMetadata {
 }
 
 export interface PaginatedResponse<T> {
-  pagination: PaginationMetadata;
+  meta: PaginationMeta;
   data: T[];
 }

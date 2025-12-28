@@ -2,18 +2,17 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { ApiResponses } from 'src/common/dto/response.dto';
 import { OneWayReservationDto } from './dto';
-
 import { Model, Types } from 'mongoose';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
-import { Ticket, TicketDocument } from './schema';
+import { Ticket } from './schema';
 import { ticketStatus } from './enums/status.enum';
 
 @Injectable()
 export class TicketService {
   constructor(
     @InjectModel(Ticket.name)
-    private readonly ticketModel: Model<TicketDocument>
+    private ticketModel: Model<Ticket>
   ) {}
 
   async create(userId: string, createTicketDto: CreateTicketDto): Promise<Ticket> {
@@ -96,5 +95,13 @@ export class TicketService {
 
     // Return
     return ApiResponses.success('Ticket reserved successfully', ticket);
+  }
+
+  /**
+   * get booking tickets
+   */
+  async getTicketsByStatus(status: string) {
+    const tickets = await this.ticketModel.find({ status: status });
+    return { results: tickets.length, tickets };
   }
 }
