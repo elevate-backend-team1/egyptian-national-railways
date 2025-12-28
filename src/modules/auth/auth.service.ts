@@ -13,12 +13,12 @@ import { ApiResponse, ResponseStatus } from 'src/common/interfaces/response.inte
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiResponses } from 'src/common/dto/response.dto';
 import { handleServiceError } from 'src/common/utils/errorHandler';
 import { randomUUID } from 'crypto';
 import { TokenBlacklistService } from './token-blacklist.service';
 import { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 export interface TokenPayload {
   sub: string;
@@ -90,23 +90,12 @@ export class AuthService {
     return user;
   }
 
+  // complete user profile data
   async completeRegister(email: string, updateData: updateUserDto) {
-    return this.userModel.findOneAndUpdate(
-      { email },
-      {
-        full_name: updateData.fullName,
-        phone: updateData.phoneNumber,
-        national_id: updateData.nationalId,
-        role: 'passenger',
-        verified: true
-      },
-      {
-        new: true,
-        projection: { password_hash: 0 }
-      }
-    );
+    return this.userModel.findOneAndUpdate({ email }, updateData, { new: true });
   }
 
+  // generate otp service
   async generateOtp(email: string): Promise<{ message: string }> {
     const existing = await this.otpModel.findOne({
       email,
@@ -133,6 +122,7 @@ export class AuthService {
     return { message: 'OTP sent successfully' };
   }
 
+  // verify otp service
   async verifyOtp(email: string, code: string): Promise<{ message: string }> {
     const otpRecord = await this.otpModel.findOne({ email, code, is_valid: true });
 
@@ -152,15 +142,17 @@ export class AuthService {
     return { message: 'OTP verified successfully' };
   }
 
+  // resend otp service
   async resendOtp(email: string): Promise<{ message: string }> {
     await this.otpModel.updateMany({ email, is_valid: true }, { is_valid: false });
     return this.generateOtp(email);
   }
 
+  // login service
   async login(body: LoginDto): Promise<ApiResponse> {
     const { password, email } = body;
 
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email }).select('+password_hash');
 
     if (!user) {
       throw new BadRequestException('User not found');
@@ -193,8 +185,8 @@ export class AuthService {
    * change logged user password service
    */
   async changeUserPassword(userId: string, body: ChangePasswordDto): Promise<ApiResponses<null>> {
-    // Find user
-    const user = await this.userModel.findById(userId);
+    // Find user & select password field
+    const user = await this.userModel.findById(userId).select('+password_hash');
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -239,42 +231,9 @@ export class AuthService {
   }
 
   /**
-   * reset password service
-   */
-  async resetPassword(dto: ResetPasswordDto): Promise<ApiResponses<null>> {
-    const hashedPassword: string = await bcrypt.hash(dto.newPassword, 10);
-    // update user password
-    const user = await this.userModel.findOneAndUpdate(
-      { email: dto.email },
-      {
-        password: hashedPassword
-      }
-    );
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return ApiResponses.success('Password has been reset successfully', null);
-  }
-
-  /**
    * Logout service
    */
   async logout(req: AuthRequest): Promise<ApiResponses<null>> {
-    // extract token from request and check if exist
-    // const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-
-    // if (!token) {
-    //   throw new UnauthorizedException('No token provided');
-    // }
-
-    // const payload = this.jwtService.decode(token) as JwtPayload;
-
-    // if (!payload?.jti || !payload.exp) {
-    //   throw new UnauthorizedException('Invalid token');
-    // }
-
     // get token data from user obj in req
     const { jti, exp } = req.user;
 
@@ -282,5 +241,26 @@ export class AuthService {
     await this.tokenBlacklistService.blacklist(jti, exp);
 
     return ApiResponses.success('Logged out successfully', null);
+  }
+
+  /**
+   * update profile data
+   */
+  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
+    // check user exist
+    const currentUser = await this.userModel.findById(userId);
+    if (!currentUser) {
+      throw new NotFoundException('User logged out');
+    }
+    // check if user need to change email
+    if (updateProfileDto.email) {
+      // update profile data & verified = false
+      await this.userModel.findByIdAndUpdate(userId, { ...updateProfileDto, verified: false });
+      // send otp to new email
+      return await this.generateOtp(updateProfileDto.email);
+    } else {
+      const updatedProfile = await this.userModel.findByIdAndUpdate(userId, updateProfileDto, { new: true });
+      return updatedProfile;
+    }
   }
 }

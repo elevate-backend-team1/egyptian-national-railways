@@ -1,13 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('Authentication')
 @ApiBearerAuth()
@@ -65,6 +66,11 @@ export class AuthController {
     return await this.authService.resendOtp(email);
   }
 
+  /**
+   * POST/auth/login
+   * @param body
+   * @returns token
+   */
   @Post('login')
   @Public()
   @ApiOperation({ summary: 'User login' })
@@ -74,6 +80,7 @@ export class AuthController {
   async login(@Body() body: LoginDto) {
     return await this.authService.login(body);
   }
+
   /**
    * POST/forgot-password
    * @body ForgotPasswordDto
@@ -91,16 +98,16 @@ export class AuthController {
 
   /**
    * POST/reset-password
-   * @param ResetPasswordDto
+   * @param ChangePasswordDto
    * @returns
    */
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset password' })
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
   @ApiResponse({ status: 400, description: 'Invalid token or expired' })
-  @ApiBody({ type: ResetPasswordDto })
-  async resetPassword(@Body() ResetPasswordDto: ResetPasswordDto) {
-    return await this.authService.resetPassword(ResetPasswordDto);
+  @ApiBody({ type: ChangePasswordDto })
+  async resetPassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req: AuthRequest) {
+    return await this.authService.changeUserPassword(req.user.userId, changePasswordDto);
   }
 
   /**
@@ -111,5 +118,17 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: AuthRequest) {
     return this.authService.logout(req);
+  }
+
+  /**
+   * PATCH/updateProfile
+   * @Req
+   * @return string | user
+   */
+
+  @Patch('updateProfile')
+  async updateProfile(@Req() req: AuthRequest, @Body() updateProfileDto: UpdateProfileDto) {
+    const userId = req.user.userId;
+    return this.authService.updateProfile(userId, updateProfileDto);
   }
 }
