@@ -8,6 +8,8 @@ import { jwtConfig } from '../../config/jwt.config';
 import { MailModule } from 'src/common/mail/mail.module';
 import { userModel } from './schemas/user.shcema';
 import { otpModel } from './schemas/otp.schema';
+import { BlacklistedTokenModel } from './schemas/blacklisted-token.schema';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Module({
   imports: [
@@ -20,10 +22,11 @@ import { otpModel } from './schemas/otp.schema';
     }),
     MailModule,
     userModel,
-    otpModel
+    otpModel,
+    BlacklistedTokenModel
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, TokenBlacklistService],
   exports: [AuthService, JwtStrategy, PassportModule, JwtModule]
 })
 export class AuthModule {}

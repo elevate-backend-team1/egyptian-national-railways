@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { createUserDto } from './dto/create-user.dto';
@@ -7,6 +7,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import type { AuthRequest } from 'src/common/interfaces/AuthRequest.interface';
 
 @ApiTags('Authentication')
 @ApiBearerAuth()
@@ -100,5 +101,15 @@ export class AuthController {
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(@Body() ResetPasswordDto: ResetPasswordDto) {
     return await this.authService.resetPassword(ResetPasswordDto);
+  }
+
+  /**
+   * POST/logout
+   * @Req
+   * @returns
+   */
+  @Post('logout')
+  async logout(@Req() req: AuthRequest) {
+    return this.authService.logout(req);
   }
 }
